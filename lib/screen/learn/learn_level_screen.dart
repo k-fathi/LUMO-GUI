@@ -2,9 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
 
-import 'Level 2/Level2.dart';
-import 'Level 3/Level 3.dart';
-import 'level 1/Level 1.dart';
+import 'level_2/level_2.dart';
+import 'level_3/level_3.dart';
+import 'level_1/level_1.dart';
 
 class LearnLevels extends StatelessWidget {
   const LearnLevels({super.key});

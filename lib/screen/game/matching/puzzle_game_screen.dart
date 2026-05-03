@@ -6,7 +6,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'match_pair_game.dart';
 
 // تأكدي من استيراد ملف ليفل 3 هنا ليعمل الانتقال تلقائياً
-// import 'package:kids_world_app/screen/game/learningGames/match_pair_game.dart';
+// import 'package:kids_world_app/screen/game/learning_games/match_pair_game.dart';
 
 class PuzzleGameScreen extends StatefulWidget {
   const PuzzleGameScreen({super.key});

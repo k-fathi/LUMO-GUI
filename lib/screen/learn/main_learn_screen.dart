@@ -1,15 +1,15 @@
 // import 'package:flutter/material.dart';
 // import 'package:get/get.dart';
 // import 'package:google_fonts/google_fonts.dart';
-// import 'package:kids_world_app/screen/learn/Level%203/animal_learn_screen.dart';
-// import 'package:kids_world_app/screen/learn/level%201/arabic_learn_screen.dart';
-// import 'package:kids_world_app/screen/learn/Level%202/color_learn_screen.dart';
-// import 'package:kids_world_app/screen/learn/Level%203/daily_life_learn_screen_new.dart';
-// import 'package:kids_world_app/screen/learn/Level%202/month_learn_screen.dart';
-// import 'package:kids_world_app/screen/learn/level%201/number_learn_screen.dart';
-// import 'package:kids_world_app/screen/learn/Level%203/shape_learn_screen.dart';
-// import 'level 1/alphabet_learning_screen.dart';
-// import 'Level 2/day_learn_screen.dart';
+// import 'package:kids_world_app/screen/learn/level_3/animal_learn_screen.dart';
+// import 'package:kids_world_app/screen/learn/level_1/arabic_learn_screen.dart';
+// import 'package:kids_world_app/screen/learn/level_2/color_learn_screen.dart';
+// import 'package:kids_world_app/screen/learn/level_3/daily_life_learn_screen_new.dart';
+// import 'package:kids_world_app/screen/learn/level_2/month_learn_screen.dart';
+// import 'package:kids_world_app/screen/learn/level_1/number_learn_screen.dart';
+// import 'package:kids_world_app/screen/learn/level_3/shape_learn_screen.dart';
+// import 'level_1/alphabet_learning_screen.dart';
+// import 'level_2/day_learn_screen.dart';
 //
 // class MainLearnScreen extends StatelessWidget {
 //   const MainLearnScreen({super.key});

@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import '../Robot Screen/spin_learn_screen.dart';
+import '../robot_screen/spin_learn_screen.dart';
 import '../game/game_levels_screen.dart';
 import '../learn/learn_level_screen.dart';
 import '../draw/main_drawing_screen.dart';

@@ -2,14 +2,14 @@
 // import 'package:get/get.dart';
 // import 'package:google_fonts/google_fonts.dart';
 // import 'package:kids_world_app/screen/game/matching/color_game_screen.dart';
-// import 'package:kids_world_app/screen/game/mindGames/funny_ball_game.dart';
-// import 'package:kids_world_app/screen/game/learningGames/math_fun_game.dart';
+// import 'package:kids_world_app/screen/game/mind_games/funny_ball_game.dart';
+// import 'package:kids_world_app/screen/game/learning_games/math_fun_game.dart';
 // import 'package:kids_world_app/screen/game/matching/puzzle_game_screen.dart';
-// import 'package:kids_world_app/screen/game/learningGames/alphabet_number_puzzle_screen.dart';
-// import 'package:kids_world_app/screen/game/mindGames/which_has_more_game.dart';
-// import 'package:kids_world_app/screen/game/learningGames/word_game_screen.dart';
-// import 'mindGames/big_or_small_game.dart';
-// import 'learningGames/count_choose_game.dart';
+// import 'package:kids_world_app/screen/game/learning_games/alphabet_number_puzzle_screen.dart';
+// import 'package:kids_world_app/screen/game/mind_games/which_has_more_game.dart';
+// import 'package:kids_world_app/screen/game/learning_games/word_game_screen.dart';
+// import 'mind_games/big_or_small_game.dart';
+// import 'learning_games/count_choose_game.dart';
 // import 'matching/match_pair_game.dart';
 //
 // class GameMainScreen extends StatelessWidget {

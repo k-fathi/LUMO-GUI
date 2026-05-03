@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:kids_world_app/screen/game/learningGames/LearningGamesLevels.dart';
+import 'package:kids_world_app/screen/game/learning_games/learning_games_levels.dart';
 
-import 'matching/MachingLevels.dart';
-import 'mindGames/MindGamesLevels.dart';
+import 'matching/maching_levels.dart';
+import 'mind_games/mind_games_levels.dart';
 
 class GameLevels extends StatelessWidget {
   const GameLevels({super.key});
