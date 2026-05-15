@@ -12,14 +12,19 @@ class ApiService {
       InterceptorsWrapper(
         onRequest: (options, handler) async {
           final prefs = await SharedPreferences.getInstance();
+
           String? token = prefs.getString('auth_token');
-          if (token != null) {
-            // ensure token is clean of 'Bearer ' prefix if it already has it
-            token = token.replaceAll('Bearer ', '').trim();
+
+          // تنظيف التوكن لو موجود
+          token = token?.replaceAll('Bearer ', '').trim();
+
+          if (token != null && token.isNotEmpty) {
             options.headers['Authorization'] = 'Bearer $token';
           }
+
           options.headers['Accept'] = 'application/json';
           options.headers['Content-Type'] = 'application/json';
+
           return handler.next(options);
         },
       ),

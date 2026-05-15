@@ -10,7 +10,7 @@ import '../services/ad_service.dart';
 class AnimalInfoPage extends StatefulWidget {
   final Animal animal;
 
-  const AnimalInfoPage({Key? key, required this.animal}) : super(key: key);
+  const AnimalInfoPage({super.key, required this.animal});
 
   @override
   State<AnimalInfoPage> createState() => _AnimalInfoPageState();
@@ -136,10 +136,7 @@ class _AnimalInfoPageState extends State<AnimalInfoPage> {
           children: [
             Hero(
               tag: 'animal_image_${widget.animal.index}',
-              child: Image.asset(
-                widget.animal.imagePath,
-                fit: BoxFit.cover,
-              ),
+              child: Image.asset(widget.animal.imagePath, fit: BoxFit.cover),
             ),
             const DecoratedBox(
               decoration: BoxDecoration(
@@ -205,10 +202,7 @@ class _AnimalInfoPageState extends State<AnimalInfoPage> {
     );
   }
 
-  Widget _buildSection({
-    required String title,
-    required List<Widget> content,
-  }) {
+  Widget _buildSection({required String title, required List<Widget> content}) {
     return Container(
       margin: const EdgeInsets.all(16.0),
       padding: const EdgeInsets.all(16.0),
@@ -346,9 +340,7 @@ class _AnimalInfoPageState extends State<AnimalInfoPage> {
   Widget _buildInfoSection(BuildContext context) {
     return _buildSection(
       title: 'description'.tr(),
-      content: [
-        _buildTextWithSpeech(widget.animal.description.tr()),
-      ],
+      content: [_buildTextWithSpeech(widget.animal.description.tr())],
     );
   }
 
@@ -380,18 +372,14 @@ class _AnimalInfoPageState extends State<AnimalInfoPage> {
   Widget _buildHabitat() {
     return _buildSection(
       title: 'habitat'.tr(),
-      content: [
-        _buildTextWithSpeech('${widget.animal.name}_habitat'.tr()),
-      ],
+      content: [_buildTextWithSpeech('${widget.animal.name}_habitat'.tr())],
     );
   }
 
   Widget _buildDietSection() {
     return _buildSection(
       title: 'diet'.tr(),
-      content: [
-        _buildTextWithSpeech('${widget.animal.name}_diet'.tr()),
-      ],
+      content: [_buildTextWithSpeech('${widget.animal.name}_diet'.tr())],
     );
   }
 
@@ -412,15 +400,9 @@ class _AnimalInfoPageState extends State<AnimalInfoPage> {
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Icon(
-          Icons.star,
-          color: Colors.orangeAccent,
-          size: 20,
-        ),
+        const Icon(Icons.star, color: Colors.orangeAccent, size: 20),
         const SizedBox(width: 8),
-        Expanded(
-          child: _buildTextWithSpeech(fact),
-        ),
+        Expanded(child: _buildTextWithSpeech(fact)),
       ],
     );
   }

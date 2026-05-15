@@ -4,8 +4,8 @@ import 'package:kids_world_app/soundsAnimal/models/quiz_score.dart';
 import 'package:flutter/foundation.dart';
 
 class QuizProvider with ChangeNotifier {
-  List<QuizScore> _scores = [];
-  List<Achievement> _achievements = [];
+  final List<QuizScore> _scores = [];
+  final List<Achievement> _achievements = [];
   int _highestScore = 0;
 
   List<QuizScore> get scores => _scores;

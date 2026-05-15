@@ -218,24 +218,27 @@ class _AlphabetLearningScreenState extends State<AlphabetLearningScreen>
   }
 
   Widget _buildAlphabetGrid() {
-    return Padding(
-      padding: const EdgeInsets.all(16),
-      child: GridView.builder(
-        gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-          crossAxisCount: 3,
-          crossAxisSpacing: 12,
-          mainAxisSpacing: 12,
-          childAspectRatio: 1,
-        ),
-        itemCount: alphabets.length,
-        itemBuilder: (context, index) {
-          final item = alphabets[index];
-          final letter = item['letter'] as String;
-          final color = item['color'] as Color;
-          final isSelected = selectedLetter == letter;
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: GridView.builder(
+          shrinkWrap: true,
+          gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+            crossAxisCount: 5,
+            crossAxisSpacing: 12,
+            mainAxisSpacing: 12,
+            childAspectRatio: 1,
+          ),
+          itemCount: alphabets.length,
+          itemBuilder: (context, index) {
+            final item = alphabets[index];
+            final letter = item['letter'] as String;
+            final color = item['color'] as Color;
+            final isSelected = selectedLetter == letter;
 
-          return _buildLetterCard(letter, color, isSelected);
-        },
+            return _buildLetterCard(letter, color, isSelected);
+          },
+        ),
       ),
     );
   }
@@ -277,33 +280,45 @@ class _AlphabetLearningScreenState extends State<AlphabetLearningScreen>
                 ),
               ),
               // Letter
-              Center(
+              Positioned.fill(
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    Text(
-                      letter,
-                      style: GoogleFonts.poppins(
-                        fontSize: 48,
-                        fontWeight: FontWeight.w900,
-                        color: Colors.white,
-                        shadows: [
-                          Shadow(
-                            color: Colors.black.withValues(alpha: 0.2),
-                            blurRadius: 4,
-                            offset: const Offset(0, 2),
+                    Expanded(
+                      child: FittedBox(
+                        fit: BoxFit.scaleDown,
+                        child: Padding(
+                          padding: const EdgeInsets.all(4.0),
+                          child: Text(
+                            letter,
+                            style: GoogleFonts.poppins(
+                              fontSize: 48,
+                              fontWeight: FontWeight.w900,
+                              color: Colors.white,
+                              shadows: [
+                                Shadow(
+                                  color: Colors.black.withValues(alpha: 0.2),
+                                  blurRadius: 4,
+                                  offset: const Offset(0, 2),
+                                ),
+                              ],
+                            ),
                           ),
-                        ],
+                        ),
                       ),
                     ),
-                    Text(
-                      letter.toLowerCase(),
-                      style: GoogleFonts.poppins(
-                        fontSize: 18,
-                        fontWeight: FontWeight.w600,
-                        color: Colors.white.withValues(alpha: 0.8),
+                    FittedBox(
+                      fit: BoxFit.scaleDown,
+                      child: Text(
+                        letter.toLowerCase(),
+                        style: GoogleFonts.poppins(
+                          fontSize: 16,
+                          fontWeight: FontWeight.w600,
+                          color: Colors.white.withValues(alpha: 0.8),
+                        ),
                       ),
                     ),
+                    const SizedBox(height: 4),
                   ],
                 ),
               ),

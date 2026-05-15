@@ -200,24 +200,28 @@ class _ArabicLearnScreenState extends State<ArabicLearnScreen>
   }
 
   Widget _buildArabicLetterGrid() {
-    return Padding(
-      padding: const EdgeInsets.all(16),
-      child: GridView.builder(
-        gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-          crossAxisCount: 3,
-          crossAxisSpacing: 12,
-          mainAxisSpacing: 12,
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: GridView.builder(
+          shrinkWrap: true,
+          gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+            crossAxisCount: 5,
+            crossAxisSpacing: 12,
+            mainAxisSpacing: 12,
+            childAspectRatio: 1,
+          ),
+          itemCount: arabicLetters.length,
+          itemBuilder: (context, index) {
+            final item = arabicLetters[index];
+            return _buildLetterCard(
+              item['letter'],
+              item['name'],
+              item['color'],
+              selectedLetter == item['letter'],
+            );
+          },
         ),
-        itemCount: arabicLetters.length,
-        itemBuilder: (context, index) {
-          final item = arabicLetters[index];
-          return _buildLetterCard(
-            item['letter'],
-            item['name'],
-            item['color'],
-            selectedLetter == item['letter'],
-          );
-        },
       ),
     );
   }
@@ -239,11 +243,17 @@ class _ArabicLearnScreenState extends State<ArabicLearnScreen>
             borderRadius: BorderRadius.circular(20),
           ),
           child: Center(
-            child: Text(
-              letter,
-              style: GoogleFonts.notoNaskhArabic(
-                fontSize: 48,
-                color: Colors.white,
+            child: FittedBox(
+              fit: BoxFit.scaleDown,
+              child: Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: Text(
+                  letter,
+                  style: GoogleFonts.notoNaskhArabic(
+                    fontSize: 48,
+                    color: Colors.white,
+                  ),
+                ),
               ),
             ),
           ),

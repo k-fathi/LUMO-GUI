@@ -41,7 +41,9 @@ class MainDrawingScreen extends StatelessWidget {
                             child: const Icon(Icons.arrow_back),
                           ),
                         ),
+
                         const SizedBox(width: 24),
+
                         Text(
                           'Draw & Learn',
                           style: GoogleFonts.poppins(
@@ -57,22 +59,16 @@ class MainDrawingScreen extends StatelessWidget {
 
                 const SizedBox(height: 30),
 
-                // Cards Grid (Responsive)
+                /// ✅ الكارتين في المنتصف
                 Expanded(
-                  child: LayoutBuilder(
-                    builder: (context, constraints) {
-                      double width = constraints.maxWidth;
-
-                      // نسبة ديناميكية حسب عرض الشاشة
-                      double aspectRatio = width / 500;
-
-                      return GridView.count(
-                        crossAxisCount: 2,
-                        crossAxisSpacing: 15,
-                        mainAxisSpacing: 15,
-                        childAspectRatio: aspectRatio.clamp(0.8, 1.4),
-                        children: [
-                          _buildCategoryCard(
+                  child: Center(
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        SizedBox(
+                          width: 180,
+                          height: 180,
+                          child: _buildCategoryCard(
                             title: 'Drawing',
                             icon: '🎨',
                             bgColor: const Color(0xFFE8F5E9),
@@ -83,8 +79,14 @@ class MainDrawingScreen extends StatelessWidget {
                               );
                             },
                           ),
+                        ),
 
-                          _buildCategoryCard(
+                        const SizedBox(width: 20),
+
+                        SizedBox(
+                          width: 180,
+                          height: 180,
+                          child: _buildCategoryCard(
                             title: 'Coloring',
                             icon: '🎨🖌️',
                             bgColor: const Color(0xFFFFF3E0),
@@ -95,9 +97,9 @@ class MainDrawingScreen extends StatelessWidget {
                               );
                             },
                           ),
-                        ],
-                      );
-                    },
+                        ),
+                      ],
+                    ),
                   ),
                 ),
               ],
@@ -132,7 +134,9 @@ class MainDrawingScreen extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Text(icon, style: const TextStyle(fontSize: 60)),
+
             const SizedBox(height: 10),
+
             Text(
               title,
               style: GoogleFonts.poppins(

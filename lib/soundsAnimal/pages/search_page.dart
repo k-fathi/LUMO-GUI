@@ -7,7 +7,7 @@ import '../models/animal.dart';
 import '../transitions/page_transitions.dart';
 
 class SearchPage extends StatelessWidget {
-  const SearchPage({Key? key}) : super(key: key);
+  const SearchPage({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -20,10 +20,7 @@ class SearchPage extends StatelessWidget {
         Provider.of<SearchProvider>(context, listen: false).clearSearch();
       },
       child: Scaffold(
-        appBar: AppBar(
-          title: _SearchField(),
-          backgroundColor: Colors.blue,
-        ),
+        appBar: AppBar(title: _SearchField(), backgroundColor: Colors.blue),
         body: Consumer<SearchProvider>(
           builder: (context, searchProvider, child) {
             if (searchProvider.isSearching) {
@@ -69,9 +66,7 @@ class _SearchResults extends StatelessWidget {
     return Consumer<SearchProvider>(
       builder: (context, searchProvider, child) {
         if (searchProvider.searchResults.isEmpty) {
-          return Center(
-            child: Text('no_results_found'.tr()),
-          );
+          return Center(child: Text('no_results_found'.tr()));
         }
 
         return ListView.builder(
@@ -92,9 +87,7 @@ class _SearchHistory extends StatelessWidget {
     return Consumer<SearchProvider>(
       builder: (context, searchProvider, child) {
         if (searchProvider.searchHistory.isEmpty) {
-          return Center(
-            child: Text('no_search_history'.tr()),
-          );
+          return Center(child: Text('no_search_history'.tr()));
         }
 
         return Column(
@@ -152,11 +145,7 @@ class _AnimalListItem extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ListTile(
-      leading: Image.asset(
-        animal.imagePath,
-        width: 50,
-        height: 50,
-      ),
+      leading: Image.asset(animal.imagePath, width: 50, height: 50),
       title: Text(animal.name.tr()),
       subtitle: Text(
         animal.description.tr(),
@@ -164,13 +153,13 @@ class _AnimalListItem extends StatelessWidget {
         overflow: TextOverflow.ellipsis,
       ),
       onTap: () {
-        Provider.of<SearchProvider>(context, listen: false)
-            .addToHistory(animal.name.tr());
+        Provider.of<SearchProvider>(
+          context,
+          listen: false,
+        ).addToHistory(animal.name.tr());
         Navigator.push(
           context,
-          PageTransitions.createScaleTransition(
-            AnimalInfoPage(animal: animal),
-          ),
+          PageTransitions.createScaleTransition(AnimalInfoPage(animal: animal)),
         );
       },
     );

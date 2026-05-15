@@ -903,6 +903,39 @@
             }
           },
           "response": []
+        },
+        {
+          "name": "all posts",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}home/all",
+              "host": [
+                "{{base_url}}home"
+              ],
+              "path": [
+                "all"
+              ]
+            }
+          },
+          "response": []
         }
       ]
     },
@@ -1473,6 +1506,14 @@
             }
           },
           "response": []
+        },
+        {
+          "name": "New Request",
+          "request": {
+            "method": "GET",
+            "header": []
+          },
+          "response": []
         }
       ]
     },
@@ -1505,11 +1546,12 @@
               "raw": "{\r\n \"receiver_id\": 22\r\n}"
             },
             "url": {
-              "raw": "{{base_url}}session/start",
+              "raw": "{{base_url}}sessions/2/start",
               "host": [
-                "{{base_url}}session"
+                "{{base_url}}sessions"
               ],
               "path": [
+                "2",
                 "start"
               ]
             }
@@ -1538,12 +1580,372 @@
               }
             ],
             "url": {
-              "raw": "{{base_url}}session/end",
+              "raw": "{{base_url}}sessions/2/end",
               "host": [
-                "{{base_url}}session"
+                "{{base_url}}sessions"
               ],
               "path": [
+                "2",
                 "end"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Create Session",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{doctor_tohen}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"patient_id\":1,\r\n    \"started_at\": \"2026-05-13 10:00:00\",\r\n    \"notes\": \"جلسة متكاملة للطفل أحمد\",\r\n    \"segments\": [\r\n        {\r\n            \"activity_type\": \"games\",\r\n            \"planned_duration\": 10\r\n        },\r\n        {\r\n            \"activity_type\": \"study\",\r\n            \"planned_duration\": 15\r\n        },\r\n        {\r\n            \"activity_type\": \"stories\",\r\n            \"planned_duration\": 5\r\n        }\r\n    ]\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}sessions",
+              "host": [
+                "{{base_url}}sessions"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "show session details",
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          },
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{doctor_tohen}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": ""
+            },
+            "url": {
+              "raw": "{{base_url}}sessions/2",
+              "host": [
+                "{{base_url}}sessions"
+              ],
+              "path": [
+                "2"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "// رؤية سيشنز مريض من الدكتور",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{doctor_tohen}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}sessions/list/1",
+              "host": [
+                "{{base_url}}sessions"
+              ],
+              "path": [
+                "list",
+                "1"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "// تعديل سيشن",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{doctor_tohen}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"notes\": \"تم تعديل الملاحظات وتقليل وقت القصص\",\r\n    \"segments\": [\r\n        {\r\n            \"activity_type\": \"games\",\r\n            \"planned_duration\": 10\r\n        },\r\n        {\r\n            \"activity_type\": \"stories\",\r\n            \"planned_duration\": 2 \r\n        }\r\n    ]\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}sessions/2?_method=PUT",
+              "host": [
+                "{{base_url}}sessions"
+              ],
+              "path": [
+                "2"
+              ],
+              "query": [
+                {
+                  "key": "_method",
+                  "value": "PUT"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "هيرجع جلساتك أنت بس لو داخل كمريض",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}sessions/list",
+              "host": [
+                "{{base_url}}sessions"
+              ],
+              "path": [
+                "list"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "حذف سيشن",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{doctor_tohen}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": ""
+            },
+            "url": {
+              "raw": "{{base_url}}sessions/1?_method=DELETE",
+              "host": [
+                "{{base_url}}sessions"
+              ],
+              "path": [
+                "1"
+              ],
+              "query": [
+                {
+                  "key": "_method",
+                  "value": "DELETE"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "start  segments",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{doctor_tohen}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": ""
+            },
+            "url": {
+              "raw": "{{base_url}}segments/5/start",
+              "host": [
+                "{{base_url}}segments"
+              ],
+              "path": [
+                "5",
+                "start"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "رفع صوره",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{doctor_tohen}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "image",
+                  "type": "file",
+                  "uuid": "86495522-25ba-4249-93f6-4e3a6c3ef185",
+                  "src": "/C:/Users/Number One/Downloads/zahra-amiri-VKcPDUprFn0-unsplash.jpg"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{base_url}}test-ai-vision",
+              "host": [
+                "{{base_url}}test-ai-vision"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "end segmant",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{doctor_tohen}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "// {\r\n//     \"story_trait\": \"الأمانة - قصة أحمد والشنطة\",\r\n//     \"is_answer_correct\": true\r\n// }",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}segments/5/complete",
+              "host": [
+                "{{base_url}}segments"
+              ],
+              "path": [
+                "5",
+                "complete"
               ]
             }
           },
@@ -1663,6 +2065,11 @@
   "variable": [
     {
       "key": "base_url",
+      "value": "",
+      "type": "default"
+    },
+    {
+      "key": "doctor_tohen",
       "value": "",
       "type": "default"
     }

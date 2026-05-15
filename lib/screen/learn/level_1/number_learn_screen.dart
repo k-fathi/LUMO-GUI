@@ -10,7 +10,8 @@ class NumberLearnScreen extends StatefulWidget {
   State<NumberLearnScreen> createState() => _NumberLearnScreenState();
 }
 
-class _NumberLearnScreenState extends State<NumberLearnScreen> with SingleTickerProviderStateMixin {
+class _NumberLearnScreenState extends State<NumberLearnScreen>
+    with SingleTickerProviderStateMixin {
   final FlutterTts flutterTts = FlutterTts();
   int? selectedNumber;
   late AnimationController _animationController;
@@ -99,9 +100,7 @@ class _NumberLearnScreenState extends State<NumberLearnScreen> with SingleTicker
             children: [
               _buildHeader(),
               _buildInstructions(),
-              Expanded(
-                child: _buildNumberGrid(),
-              ),
+              Expanded(child: _buildNumberGrid()),
             ],
           ),
         ),
@@ -221,24 +220,27 @@ class _NumberLearnScreenState extends State<NumberLearnScreen> with SingleTicker
   }
 
   Widget _buildNumberGrid() {
-    return Padding(
-      padding: const EdgeInsets.all(16),
-      child: GridView.builder(
-        gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-          crossAxisCount: 3,
-          crossAxisSpacing: 12,
-          mainAxisSpacing: 12,
-          childAspectRatio: 1,
-        ),
-        itemCount: numbers.length,
-        itemBuilder: (context, index) {
-          final item = numbers[index];
-          final number = item['number'] as int;
-          final color = item['color'] as Color;
-          final isSelected = selectedNumber == number;
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: GridView.builder(
+          shrinkWrap: true,
+          gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+            crossAxisCount: 5,
+            crossAxisSpacing: 12,
+            mainAxisSpacing: 12,
+            childAspectRatio: 1,
+          ),
+          itemCount: numbers.length,
+          itemBuilder: (context, index) {
+            final item = numbers[index];
+            final number = item['number'] as int;
+            final color = item['color'] as Color;
+            final isSelected = selectedNumber == number;
 
-          return _buildNumberCard(number, color, isSelected);
-        },
+            return _buildNumberCard(number, color, isSelected);
+          },
+        ),
       ),
     );
   }
@@ -254,10 +256,7 @@ class _NumberLearnScreenState extends State<NumberLearnScreen> with SingleTicker
             gradient: LinearGradient(
               begin: Alignment.topLeft,
               end: Alignment.bottomRight,
-              colors: [
-                color,
-                color.withValues(alpha: 0.7),
-              ],
+              colors: [color, color.withValues(alpha: 0.7)],
             ),
             borderRadius: BorderRadius.circular(16),
             boxShadow: [
@@ -276,25 +275,33 @@ class _NumberLearnScreenState extends State<NumberLearnScreen> with SingleTicker
                 child: ClipRRect(
                   borderRadius: BorderRadius.circular(16),
                   child: CustomPaint(
-                    painter: NumberCardPatternPainter(color: Colors.white.withValues(alpha: 0.1)),
+                    painter: NumberCardPatternPainter(
+                      color: Colors.white.withValues(alpha: 0.1),
+                    ),
                   ),
                 ),
               ),
               // Number
               Center(
-                child: Text(
-                  number.toString(),
-                  style: GoogleFonts.poppins(
-                    fontSize: number >= 100 ? 24 : (number >= 10 ? 28 : 32),
-                    fontWeight: FontWeight.w900,
-                    color: Colors.white,
-                    shadows: [
-                      Shadow(
-                        color: Colors.black.withValues(alpha: 0.2),
-                        blurRadius: 4,
-                        offset: const Offset(0, 2),
+                child: FittedBox(
+                  fit: BoxFit.scaleDown,
+                  child: Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Text(
+                      number.toString(),
+                      style: GoogleFonts.poppins(
+                        fontSize: number >= 100 ? 24 : (number >= 10 ? 28 : 32),
+                        fontWeight: FontWeight.w900,
+                        color: Colors.white,
+                        shadows: [
+                          Shadow(
+                            color: Colors.black.withValues(alpha: 0.2),
+                            blurRadius: 4,
+                            offset: const Offset(0, 2),
+                          ),
+                        ],
                       ),
-                    ],
+                    ),
                   ),
                 ),
               ),
@@ -316,11 +323,7 @@ class _NumberLearnScreenState extends State<NumberLearnScreen> with SingleTicker
                         ),
                       ],
                     ),
-                    child: Icon(
-                      Icons.volume_up,
-                      size: 12,
-                      color: color,
-                    ),
+                    child: Icon(Icons.volume_up, size: 12, color: color),
                   ),
                 ),
             ],

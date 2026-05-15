@@ -7,7 +7,7 @@ import 'package:flutter_tts/flutter_tts.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
 
 class QuizStartPage extends StatefulWidget {
-  const QuizStartPage({Key? key}) : super(key: key);
+  const QuizStartPage({super.key});
 
   @override
   State<QuizStartPage> createState() => _QuizStartPageState();
@@ -87,10 +87,7 @@ class _QuizStartPageState extends State<QuizStartPage> {
                 gradient: LinearGradient(
                   begin: Alignment.topCenter,
                   end: Alignment.bottomCenter,
-                  colors: [
-                    Colors.blue[50]!,
-                    Colors.blue[100]!,
-                  ],
+                  colors: [Colors.blue[50]!, Colors.blue[100]!],
                 ),
               ),
               child: Center(

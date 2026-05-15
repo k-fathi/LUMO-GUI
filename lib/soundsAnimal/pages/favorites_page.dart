@@ -8,7 +8,7 @@ import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:provider/provider.dart';
 
 class FavoritesPage extends StatefulWidget {
-  const FavoritesPage({Key? key}) : super(key: key);
+  const FavoritesPage({super.key});
 
   @override
   State<FavoritesPage> createState() => _FavoritesPageState();
@@ -68,8 +68,10 @@ class _FavoritesPageState extends State<FavoritesPage> {
                               favoritesProvider.clearFavorites();
                               Navigator.pop(context);
                             },
-                            child: Text('clear'.tr(),
-                                style: const TextStyle(color: Colors.red)),
+                            child: Text(
+                              'clear'.tr(),
+                              style: const TextStyle(color: Colors.red),
+                            ),
                           ),
                         ],
                       ),

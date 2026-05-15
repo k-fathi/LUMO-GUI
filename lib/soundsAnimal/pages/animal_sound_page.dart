@@ -53,14 +53,17 @@ class _AnimalSoundPageState extends State<AnimalSoundPage> {
     await SPManager.setSoundPlayCount(currentCount);
   }
 
-  playAnimalAudio() async {
+  Future<void> playAnimalAudio() async {
     try {
       String audioPath = widget.animal.soundPath;
-      String cleanPath =
-          audioPath.startsWith('assets/') ? audioPath.substring(7) : audioPath;
+      String cleanPath = audioPath.startsWith('assets/')
+          ? audioPath.substring(7)
+          : audioPath;
+
       await audioPlayer.play(AssetSource(cleanPath));
 
       await audioPlayer.setVolume(_settingsProvider.getAnimalSoundLevel);
+
       audioPlayer.onPlayerComplete.listen((event) {
         Navigator.pop(context);
       });
@@ -72,12 +75,10 @@ class _AnimalSoundPageState extends State<AnimalSoundPage> {
   @override
   Widget build(BuildContext context) {
     _settingsProvider = Provider.of<SettingsProvider>(context);
-    return Scaffold(
-      body: bodyWidget(),
-    );
+    return Scaffold(body: bodyWidget());
   }
 
-  bodyWidget() {
+  Column bodyWidget() {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.center,
       mainAxisAlignment: MainAxisAlignment.center,
@@ -89,17 +90,20 @@ class _AnimalSoundPageState extends State<AnimalSoundPage> {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Image.asset(
-                AnimalRepository.animals[currentAnimalIndex].imagePath,
-                fit: BoxFit.contain,
+              Container(
+                height: 200,
+                width: 200,
+                alignment: Alignment.center,
+                child: Image.asset(
+                  AnimalRepository.animals[currentAnimalIndex].imagePath,
+                  fit: BoxFit.cover,
+                ),
               ),
-              const SizedBox(
-                height: 30,
-              ),
+              const SizedBox(height: 30),
               Text(
                 widget.animal.name.tr().toUpperCase(),
                 style: MyTextStyles.titleTextStyle,
-              )
+              ),
             ],
           ),
         ),

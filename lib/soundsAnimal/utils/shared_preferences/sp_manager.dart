@@ -2,7 +2,7 @@ import 'package:kids_world_app/soundsAnimal/utils/shared_preferences/sp_constant
 import 'package:shared_preferences/shared_preferences.dart';
 
 class SPManager {
-  static setAnimalSoundLevel(double value) async {
+  static Future<void> setAnimalSoundLevel(double value) async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     await prefs.setDouble(SPConstants.animalSoundLevel, value);
   }

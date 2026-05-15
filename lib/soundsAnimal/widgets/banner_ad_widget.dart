@@ -3,7 +3,7 @@ import 'package:google_mobile_ads/google_mobile_ads.dart';
 import '../services/ad_service.dart';
 
 class BannerAdWidget extends StatefulWidget {
-  const BannerAdWidget({Key? key}) : super(key: key);
+  const BannerAdWidget({super.key});
 
   @override
   State<BannerAdWidget> createState() => _BannerAdWidgetState();
@@ -53,7 +53,7 @@ class _BannerAdWidgetState extends State<BannerAdWidget> {
   @override
   Widget build(BuildContext context) {
     if (_isBannerAdReady && _bannerAd != null) {
-      return Container(
+      return SizedBox(
         width: _bannerAd!.size.width.toDouble(),
         height: _bannerAd!.size.height.toDouble(),
         child: AdWidget(ad: _bannerAd!),

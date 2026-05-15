@@ -10,7 +10,8 @@ class ColorLearnScreen extends StatefulWidget {
   State<ColorLearnScreen> createState() => _ColorLearnScreenState();
 }
 
-class _ColorLearnScreenState extends State<ColorLearnScreen> with SingleTickerProviderStateMixin {
+class _ColorLearnScreenState extends State<ColorLearnScreen>
+    with SingleTickerProviderStateMixin {
   final FlutterTts flutterTts = FlutterTts();
   String? selectedColor;
   late AnimationController _animationController;
@@ -92,9 +93,7 @@ class _ColorLearnScreenState extends State<ColorLearnScreen> with SingleTickerPr
             children: [
               _buildHeader(),
               _buildInstructions(),
-              Expanded(
-                child: _buildColorGrid(),
-              ),
+              Expanded(child: _buildColorGrid()),
             ],
           ),
         ),
@@ -214,24 +213,27 @@ class _ColorLearnScreenState extends State<ColorLearnScreen> with SingleTickerPr
   }
 
   Widget _buildColorGrid() {
-    return Padding(
-      padding: const EdgeInsets.all(16),
-      child: GridView.builder(
-        gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-          crossAxisCount: 3,
-          crossAxisSpacing: 16,
-          mainAxisSpacing: 16,
-          childAspectRatio: 0.85,
-        ),
-        itemCount: colors.length,
-        itemBuilder: (context, index) {
-          final item = colors[index];
-          final colorName = item['name'] as String;
-          final color = item['color'] as Color;
-          final isSelected = selectedColor == colorName;
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: GridView.builder(
+          shrinkWrap: true,
+          gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+            crossAxisCount: 5,
+            crossAxisSpacing: 16,
+            mainAxisSpacing: 16,
+            childAspectRatio: 1,
+          ),
+          itemCount: colors.length,
+          itemBuilder: (context, index) {
+            final item = colors[index];
+            final colorName = item['name'] as String;
+            final color = item['color'] as Color;
+            final isSelected = selectedColor == colorName;
 
-          return _buildColorCard(colorName, color, isSelected);
-        },
+            return _buildColorCard(colorName, color, isSelected);
+          },
+        ),
       ),
     );
   }
@@ -251,10 +253,7 @@ class _ColorLearnScreenState extends State<ColorLearnScreen> with SingleTickerPr
           decoration: BoxDecoration(
             color: color,
             borderRadius: BorderRadius.circular(20),
-            border: Border.all(
-              color: borderColor,
-              width: 3,
-            ),
+            border: Border.all(color: borderColor, width: 3),
             boxShadow: [
               BoxShadow(
                 color: color.withValues(alpha: 0.5),
@@ -292,44 +291,60 @@ class _ColorLearnScreenState extends State<ColorLearnScreen> with SingleTickerPr
                 ),
               ),
               // Color name
-              Center(
+              Positioned.fill(
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     // Color swatch icon
-                    Container(
-                      width: 60,
-                      height: 60,
-                      decoration: BoxDecoration(
-                        shape: BoxShape.circle,
-                        color: brightness > 0.5
-                            ? Colors.black.withValues(alpha: 0.1)
-                            : Colors.white.withValues(alpha: 0.2),
-                      ),
-                      child: Icon(
-                        Icons.palette,
-                        size: 30,
-                        color: textColor.withValues(alpha: 0.8),
-                      ),
-                    ),
-                    const SizedBox(height: 12),
-                    Text(
-                      colorName,
-                      style: GoogleFonts.poppins(
-                        fontSize: 18,
-                        fontWeight: FontWeight.w700,
-                        color: textColor,
-                        shadows: [
-                          Shadow(
-                            color: brightness > 0.5
-                                ? Colors.white.withValues(alpha: 0.8)
-                                : Colors.black.withValues(alpha: 0.3),
-                            blurRadius: 4,
-                            offset: const Offset(0, 1),
+                    Expanded(
+                      child: Container(
+                        margin: const EdgeInsets.all(8),
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          color: brightness > 0.5
+                              ? Colors.black.withValues(alpha: 0.1)
+                              : Colors.white.withValues(alpha: 0.2),
+                        ),
+                        child: Center(
+                          child: FittedBox(
+                            fit: BoxFit.scaleDown,
+                            child: Padding(
+                              padding: const EdgeInsets.all(8.0),
+                              child: Icon(
+                                Icons.palette,
+                                size: 30,
+                                color: textColor.withValues(alpha: 0.8),
+                              ),
+                            ),
                           ),
-                        ],
+                        ),
                       ),
                     ),
+                    const SizedBox(height: 4),
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 4.0),
+                      child: FittedBox(
+                        fit: BoxFit.scaleDown,
+                        child: Text(
+                          colorName,
+                          style: GoogleFonts.poppins(
+                            fontSize: 16,
+                            fontWeight: FontWeight.w700,
+                            color: textColor,
+                            shadows: [
+                              Shadow(
+                                color: brightness > 0.5
+                                    ? Colors.white.withValues(alpha: 0.8)
+                                    : Colors.black.withValues(alpha: 0.3),
+                                blurRadius: 4,
+                                offset: const Offset(0, 1),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 8),
                   ],
                 ),
               ),
@@ -351,11 +366,7 @@ class _ColorLearnScreenState extends State<ColorLearnScreen> with SingleTickerPr
                         ),
                       ],
                     ),
-                    child: Icon(
-                      Icons.volume_up,
-                      size: 16,
-                      color: color,
-                    ),
+                    child: Icon(Icons.volume_up, size: 16, color: color),
                   ),
                 ),
             ],

@@ -10,7 +10,8 @@ class MonthLearnScreen extends StatefulWidget {
   State<MonthLearnScreen> createState() => _MonthLearnScreenState();
 }
 
-class _MonthLearnScreenState extends State<MonthLearnScreen> with SingleTickerProviderStateMixin {
+class _MonthLearnScreenState extends State<MonthLearnScreen>
+    with SingleTickerProviderStateMixin {
   final FlutterTts flutterTts = FlutterTts();
   String? selectedMonth;
   late AnimationController _animationController;
@@ -192,9 +193,7 @@ class _MonthLearnScreenState extends State<MonthLearnScreen> with SingleTickerPr
             children: [
               _buildHeader(),
               _buildInstructions(),
-              Expanded(
-                child: _buildMonthsGrid(),
-              ),
+              Expanded(child: _buildMonthsGrid()),
             ],
           ),
         ),
@@ -295,7 +294,11 @@ class _MonthLearnScreenState extends State<MonthLearnScreen> with SingleTickerPr
               color: Colors.white.withValues(alpha: 0.2),
               borderRadius: BorderRadius.circular(12),
             ),
-            child: const Icon(Icons.calendar_month, color: Colors.white, size: 28),
+            child: const Icon(
+              Icons.calendar_month,
+              color: Colors.white,
+              size: 28,
+            ),
           ),
           const SizedBox(width: 12),
           Expanded(
@@ -327,152 +330,178 @@ class _MonthLearnScreenState extends State<MonthLearnScreen> with SingleTickerPr
   }
 
   Widget _buildMonthsGrid() {
-    return GridView.builder(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-        crossAxisCount: 2,
-        crossAxisSpacing: 16,
-        mainAxisSpacing: 16,
-        childAspectRatio: 0.85,
-      ),
-      itemCount: months.length,
-      itemBuilder: (context, index) {
-        final month = months[index];
-        final isSelected = selectedMonth == month['name'];
+    return Center(
+      child: GridView.builder(
+        shrinkWrap: true,
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+        gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+          crossAxisCount: 4,
+          crossAxisSpacing: 16,
+          mainAxisSpacing: 16,
+          childAspectRatio: 1,
+        ),
+        itemCount: months.length,
+        itemBuilder: (context, index) {
+          final month = months[index];
+          final isSelected = selectedMonth == month['name'];
 
-        return AnimatedContainer(
-          duration: const Duration(milliseconds: 300),
-          child: GestureDetector(
-            onTap: () => _speak(month['name']),
-            child: Container(
-              decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  colors: [
-                    month['color'],
-                    (month['color'] as Color).withValues(alpha: 0.7),
-                  ],
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
-                ),
-                borderRadius: BorderRadius.circular(20),
-                boxShadow: [
-                  BoxShadow(
-                    color: (month['color'] as Color).withValues(alpha: 0.4),
-                    blurRadius: isSelected ? 20 : 12,
-                    offset: Offset(0, isSelected ? 8 : 4),
+          return AnimatedContainer(
+            duration: const Duration(milliseconds: 300),
+            child: GestureDetector(
+              onTap: () => _speak(month['name']),
+              child: Container(
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    colors: [
+                      month['color'],
+                      (month['color'] as Color).withValues(alpha: 0.7),
+                    ],
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
                   ),
-                ],
-                border: Border.all(
-                  color: isSelected ? Colors.white : Colors.transparent,
-                  width: 3,
+                  borderRadius: BorderRadius.circular(20),
+                  boxShadow: [
+                    BoxShadow(
+                      color: (month['color'] as Color).withValues(alpha: 0.4),
+                      blurRadius: isSelected ? 20 : 12,
+                      offset: Offset(0, isSelected ? 8 : 4),
+                    ),
+                  ],
+                  border: Border.all(
+                    color: isSelected ? Colors.white : Colors.transparent,
+                    width: 3,
+                  ),
                 ),
-              ),
-              child: Padding(
-                padding: const EdgeInsets.all(16),
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    // Month Number and Emoji
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Container(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 10,
-                            vertical: 6,
-                          ),
-                          decoration: BoxDecoration(
-                            color: Colors.white.withValues(alpha: 0.3),
-                            borderRadius: BorderRadius.circular(8),
-                          ),
-                          child: Text(
-                            month['number'],
-                            style: GoogleFonts.poppins(
-                              fontSize: 16,
-                              fontWeight: FontWeight.w700,
-                              color: Colors.white,
+                child: Padding(
+                  padding: const EdgeInsets.all(16),
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      // Month Number and Emoji
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Container(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 6,
+                              vertical: 4,
+                            ),
+                            decoration: BoxDecoration(
+                              color: Colors.white.withValues(alpha: 0.3),
+                              borderRadius: BorderRadius.circular(6),
+                            ),
+                            child: Text(
+                              month['number'],
+                              style: GoogleFonts.poppins(
+                                fontSize: 12,
+                                fontWeight: FontWeight.w700,
+                                color: Colors.white,
+                              ),
                             ),
                           ),
-                        ),
-                        Text(
-                          month['emoji'],
-                          style: const TextStyle(fontSize: 32),
-                        ),
-                      ],
-                    ),
-                    // Month Name
-                    Column(
-                      children: [
-                        Text(
-                          month['name'],
-                          textAlign: TextAlign.center,
-                          style: GoogleFonts.poppins(
-                            fontSize: 20,
-                            fontWeight: FontWeight.w700,
-                            color: Colors.white,
-                          ),
-                        ),
-                        const SizedBox(height: 4),
-                        Text(
-                          month['short'],
-                          style: GoogleFonts.poppins(
-                            fontSize: 14,
-                            fontWeight: FontWeight.w500,
-                            color: Colors.white.withValues(alpha: 0.9),
-                          ),
-                        ),
-                      ],
-                    ),
-                    // Days and Season
-                    Column(
-                      children: [
-                        Container(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 12,
-                            vertical: 6,
-                          ),
-                          decoration: BoxDecoration(
-                            color: Colors.white.withValues(alpha: 0.3),
-                            borderRadius: BorderRadius.circular(10),
-                          ),
-                          child: Row(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              Icon(
-                                month['icon'],
-                                color: Colors.white,
-                                size: 18,
+                          Expanded(
+                            child: FittedBox(
+                              fit: BoxFit.scaleDown,
+                              alignment: Alignment.centerRight,
+                              child: Text(
+                                month['emoji'],
+                                style: const TextStyle(fontSize: 24),
                               ),
-                              const SizedBox(width: 6),
-                              Text(
-                                '${month['days']} days',
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 4),
+                      // Month Name
+                      Expanded(
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            FittedBox(
+                              fit: BoxFit.scaleDown,
+                              child: Text(
+                                month['name'],
+                                textAlign: TextAlign.center,
                                 style: GoogleFonts.poppins(
-                                  fontSize: 12,
-                                  fontWeight: FontWeight.w600,
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.w700,
                                   color: Colors.white,
                                 ),
                               ),
-                            ],
-                          ),
+                            ),
+                            const SizedBox(height: 2),
+                            FittedBox(
+                              fit: BoxFit.scaleDown,
+                              child: Text(
+                                month['short'],
+                                style: GoogleFonts.poppins(
+                                  fontSize: 11,
+                                  fontWeight: FontWeight.w500,
+                                  color: Colors.white.withValues(alpha: 0.9),
+                                ),
+                              ),
+                            ),
+                          ],
                         ),
-                        const SizedBox(height: 6),
-                        Text(
-                          month['season'],
-                          style: GoogleFonts.poppins(
-                            fontSize: 11,
-                            fontWeight: FontWeight.w500,
-                            color: Colors.white.withValues(alpha: 0.85),
+                      ),
+                      const SizedBox(height: 4),
+                      // Days and Season
+                      Column(
+                        children: [
+                          Container(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 6,
+                              vertical: 4,
+                            ),
+                            decoration: BoxDecoration(
+                              color: Colors.white.withValues(alpha: 0.3),
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                            child: FittedBox(
+                              fit: BoxFit.scaleDown,
+                              child: Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  Icon(
+                                    month['icon'],
+                                    color: Colors.white,
+                                    size: 12,
+                                  ),
+                                  const SizedBox(width: 4),
+                                  Text(
+                                    '${month['days']} days',
+                                    style: GoogleFonts.poppins(
+                                      fontSize: 10,
+                                      fontWeight: FontWeight.w600,
+                                      color: Colors.white,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
                           ),
-                        ),
-                      ],
-                    ),
-                  ],
+                          const SizedBox(height: 4),
+                          FittedBox(
+                            fit: BoxFit.scaleDown,
+                            child: Text(
+                              month['season'],
+                              style: GoogleFonts.poppins(
+                                fontSize: 10,
+                                fontWeight: FontWeight.w500,
+                                color: Colors.white.withValues(alpha: 0.85),
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
                 ),
               ),
             ),
-          ),
-        );
-      },
+          );
+        },
+      ),
     );
   }
 }

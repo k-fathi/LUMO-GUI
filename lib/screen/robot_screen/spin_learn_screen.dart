@@ -1,7 +1,10 @@
+import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:http/http.dart' as http;
 import 'package:audioplayers/audioplayers.dart';
+import 'package:record/record.dart';
+import 'package:path_provider/path_provider.dart';
 
 class RobotScreen extends StatefulWidget {
   const RobotScreen({super.key});
@@ -12,88 +15,188 @@ class RobotScreen extends StatefulWidget {
 
 class _RobotScreenState extends State<RobotScreen> {
   final AudioPlayer player = AudioPlayer();
+  final AudioRecorder recorder = AudioRecorder();
 
+  String storyTitle = "";
   String question = "";
   String option1 = "";
   String option2 = "";
-  String answer = "";
-
-  String emotion = "";
   String moral = "";
 
   bool showQuestion = false;
   bool showMoral = false;
+  bool isRecording = false;
   bool isPlaying = false;
 
-  final String url = "http://172.189.165.242:8081/get-story-audio";
+  String? filePath;
 
-  Future<void> loadStory() async {
-    showQuestion = false;
-    showMoral = false;
+  // السيرفر الخاص بالدروس
+  final String baseUrl = "http://172.189.165.242:8081";
+  // السيرفر الخاص بحفظ النتيجة النهائية
+  final String completionUrl =
+      "https://clickexpress.delivery/api/segments/5/complete";
 
-    final response = await http.get(Uri.parse(url));
+  @override
+  void initState() {
+    super.initState();
+    player.onPlayerComplete.listen((event) {
+      setState(() => isPlaying = false);
+    });
+  }
 
-    if (response.statusCode == 200) {
+  /// 🚀 ابدأ الدرس
+  Future<void> startLesson() async {
+    if (isPlaying) {
+      await player.pause();
+      setState(() => isPlaying = false);
+      return;
+    }
+
+    setState(() {
+      showQuestion = false;
+      showMoral = false;
+      storyTitle = "";
+      isPlaying = true;
+    });
+
+    try {
+      final res = await http.post(Uri.parse("$baseUrl/start-lesson"));
+      final data = jsonDecode(res.body);
+
       setState(() {
-        question =
-            Uri.decodeComponent(response.headers['x-question'] ?? "");
+        storyTitle = data['trait'] ?? "قصة جديدة";
+      });
 
-        option1 =
-            Uri.decodeComponent(response.headers['x-option1'] ?? "");
+      final storyAudio = data['story']['audio_url'];
+      final learningText = data['learning']['text'];
+      final learningAudio = data['learning']['audio_url'];
 
-        option2 =
-            Uri.decodeComponent(response.headers['x-option2'] ?? "");
+      await player.play(UrlSource(storyAudio));
+      await player.onPlayerComplete.first;
 
-        answer =
-            Uri.decodeComponent(response.headers['x-answer'] ?? "");
-
-        /// ✅ المهم
-        emotion =
-            Uri.decodeComponent(response.headers['x-emotion'] ?? "");
-
-        moral =
-            Uri.decodeComponent(response.headers['x-emotion-clues'] ?? "");
-
+      setState(() {
+        showMoral = true;
+        moral = learningText ?? "";
         isPlaying = true;
       });
 
-      await player.stop();
-      await player.play(BytesSource(response.bodyBytes));
+      await player.play(UrlSource(learningAudio));
+      await player.onPlayerComplete.first;
 
-      player.onPlayerComplete.listen((event) async {
-        setState(() {
-          isPlaying = false;
-          showQuestion = true;
-        });
-
-        /// لو الطفل ما جاوبش
-        await Future.delayed(const Duration(seconds: 10));
-        if (!showMoral) {
-          await loadStory();
-        }
-      });
+      await loadQuestion();
+    } catch (e) {
+      setState(() => isPlaying = false);
+      Get.snackbar("خطأ", "فشل في تحميل الدرس");
     }
   }
 
-  void checkAnswer(String selected) async {
-    if (selected == answer) {
-      Get.snackbar("✔", "Correct 🎉");
+  /// ❓ تحميل السؤال
+  Future<void> loadQuestion() async {
+    try {
+      final res = await http.get(Uri.parse("$baseUrl/get-question"));
+      final data = jsonDecode(res.body);
 
-      /// 👇 هنا اللي بيظهر المغزى
       setState(() {
-        showMoral = true;
+        question = data['question'] ?? "";
+        option1 = data['options']['option_1'] ?? "";
+        option2 = data['options']['option_2'] ?? "";
+        showQuestion = true;
+        showMoral = false;
+        isPlaying = true;
       });
-    } else {
-      Get.snackbar("❌", "Wrong.. try again");
 
-      await player.stop();
-      await loadStory();
+      await player.play(UrlSource(data['audio_url']));
+      await player.onPlayerComplete.first;
+
+      setState(() => isPlaying = false);
+      startRecording();
+    } catch (e) {
+      print("Error loading question: $e");
+    }
+  }
+
+  /// 🎤 بدء التسجيل
+  Future<void> startRecording() async {
+    if (await recorder.hasPermission()) {
+      final dir = await getTemporaryDirectory();
+      filePath = '${dir.path}/answer.wav';
+      await recorder.start(
+        const RecordConfig(
+          encoder: AudioEncoder.wav,
+          sampleRate: 16000,
+          numChannels: 1,
+        ),
+        path: filePath!,
+      );
+      setState(() => isRecording = true);
+    }
+  }
+
+  /// 🛑 إيقاف التسجيل
+  Future<void> stopRecording() async {
+    final path = await recorder.stop();
+    setState(() => isRecording = false);
+    if (path != null) await sendAudio(path);
+  }
+
+  /// 📤 إرسال الصوت للسيرفر ثم إرسال النتيجة النهائية للرابط الجديد
+  Future<void> sendAudio(String path) async {
+    var request = http.MultipartRequest(
+      'POST',
+      Uri.parse("$baseUrl/transcribe-answer"),
+    );
+    request.files.add(await http.MultipartFile.fromPath('audio', path));
+
+    try {
+      var response = await request.send();
+      var res = await response.stream.bytesToString();
+      final data = jsonDecode(res);
+      final bool isCorrect = data['is_correct'] ?? false;
+      final String? audioUrl = data['audio_url'];
+
+      // ✅ استدعاء رابط الـ Complete الذي أرسلتيه
+      await submitStoryResult(isCorrect);
+
+      Get.snackbar(
+        isCorrect ? "✔ صح" : "❌ غلط",
+        isCorrect ? "إجابة ممتازة!" : "حاول مرة ثانية",
+        snackPosition: SnackPosition.BOTTOM,
+        backgroundColor: isCorrect
+            ? Colors.green.withOpacity(0.8)
+            : Colors.red.withOpacity(0.8),
+        colorText: Colors.white,
+      );
+
+      if (audioUrl != null) await player.play(UrlSource(audioUrl));
+    } catch (e) {
+      Get.snackbar("خطأ", "مشكلة في الاتصال بالموديل");
+    }
+  }
+
+  /// 📬 إرسال JSON النتيجة النهائية للرابط: https://clickexpress.delivery/api/segments/5/complete
+  Future<void> submitStoryResult(bool isCorrect) async {
+    try {
+      await http.post(
+        Uri.parse(completionUrl),
+        headers: {
+          "Content-Type": "application/json",
+          "Accept": "application/json",
+        },
+        body: jsonEncode({
+          "story_trait": storyTitle,
+          "is_answer_correct": isCorrect,
+        }),
+      );
+      print("✅ تم إرسال نتيجة القصة بنجاح للرابط النهائي");
+    } catch (e) {
+      print("❌ خطأ في إرسال النتيجة النهائية: $e");
     }
   }
 
   @override
   void dispose() {
     player.dispose();
+    recorder.dispose();
     super.dispose();
   }
 
@@ -102,151 +205,166 @@ class _RobotScreenState extends State<RobotScreen> {
     return Scaffold(
       body: Stack(
         children: [
-
-          /// 🖼️ صورة
+          /// 🖼️ الخلفية
           Positioned.fill(
+            child: Image.asset('assets/images/robot.jpg', fit: BoxFit.contain),
+          ),
+
+          /// 🔙 زر الرجوع
+          Positioned(
+            top: 40,
+            left: 20,
             child: Container(
-              color: Colors.white,
-              child: Image.asset(
-                'assets/images/robot.jpg',
-                fit: BoxFit.contain,
+              decoration: BoxDecoration(
+                color: Colors.white.withOpacity(0.7),
+                shape: BoxShape.circle,
+              ),
+              child: IconButton(
+                icon: const Icon(Icons.arrow_back, color: Colors.black),
+                onPressed: () => Get.back(),
               ),
             ),
           ),
 
-          /// 🔙 رجوع
+          /// 🎮 أزرار التحكم
           Positioned(
-            top: 40,
-            left: 20,
-            child: IconButton(
-              icon: const Icon(Icons.arrow_back, color: Colors.black),
-              onPressed: () => Get.back(),
-            ),
-          ),
-
-          /// 🎮 أزرار
-          Positioned(
-            top: 100,
+            top: 120,
             right: 20,
             child: Column(
               children: [
-
-                /// ▶️ تشغيل
-                Container(
-                  width: 60,
-                  height: 60,
-                  decoration: BoxDecoration(
-                    color: Colors.black.withOpacity(0.6),
-                    shape: BoxShape.circle,
+                FloatingActionButton(
+                  heroTag: "btnPlay",
+                  backgroundColor: Colors.white,
+                  onPressed: startLesson,
+                  child: Icon(
+                    isPlaying ? Icons.pause : Icons.play_arrow,
+                    size: 40,
+                    color: Colors.black87,
                   ),
-                  child: IconButton(
-                    icon: Icon(
-                      isPlaying ? Icons.pause : Icons.play_arrow,
-                      color: Colors.white,
-                      size: 35,
-                    ),
-                    onPressed: () async {
-                      if (isPlaying) {
-                        await player.pause();
-                        setState(() => isPlaying = false);
-                      } else {
-                        await loadStory();
-                      }
+                ),
+                const SizedBox(height: 20),
+                GestureDetector(
+                  onLongPressStart: (_) => startRecording(),
+                  onLongPressEnd: (_) => stopRecording(),
+                  child: FloatingActionButton(
+                    heroTag: "btnMic",
+                    backgroundColor: isRecording
+                        ? Colors.red
+                        : Colors.blueAccent,
+                    onPressed: () {
+                      if (isRecording) stopRecording();
                     },
+                    child: Icon(
+                      isRecording ? Icons.stop : Icons.mic,
+                      size: 30,
+                      color: Colors.white,
+                    ),
                   ),
                 ),
-
-                const SizedBox(height: 10),
-
-                /// 🎲 قصة جديدة
-                ElevatedButton(
-                  onPressed: () async {
-                    await player.stop();
-
-                    setState(() {
-                      isPlaying = false;
-                      showQuestion = false;
-                      showMoral = false;
-                    });
-
-                    await loadStory();
-                  },
-                  child: const Text("🎲"),
-                ),
+                if (isRecording)
+                  const Padding(
+                    padding: EdgeInsets.only(top: 8.0),
+                    child: Text(
+                      "اسمعك...",
+                      style: TextStyle(
+                        color: Colors.red,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ),
               ],
             ),
           ),
 
-          /// ❓ السؤال + 💡 المغزى
-          if (showQuestion)
+          /// 📦 صندوق النصوص السفلي
+          if (showQuestion || showMoral || storyTitle.isNotEmpty)
             Positioned(
-              bottom: 20,
+              bottom: 40,
               left: 20,
               right: 20,
               child: Container(
-                padding: const EdgeInsets.all(16),
+                padding: const EdgeInsets.all(20),
                 decoration: BoxDecoration(
-                  color: Colors.grey.shade300,
-                  borderRadius: BorderRadius.circular(15),
+                  color: Colors.white.withOpacity(0.9),
+                  borderRadius: BorderRadius.circular(20),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withOpacity(0.1),
+                      blurRadius: 10,
+                      spreadRadius: 2,
+                    ),
+                  ],
                 ),
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-
-                    /// ❓ السؤال
-                    if (!showMoral) ...[
+                    /// 1. حالة القصة
+                    if (storyTitle.isNotEmpty && !showMoral && !showQuestion)
                       Text(
-                        question,
+                        "📖 قصة: $storyTitle",
                         textAlign: TextAlign.center,
                         style: const TextStyle(
-                          color: Colors.black,
-                          fontSize: 20,
+                          fontSize: 22,
                           fontWeight: FontWeight.bold,
+                          color: Colors.blueAccent,
                         ),
                       ),
 
-                      const SizedBox(height: 10),
-
-                      ElevatedButton(
-                        onPressed: () => checkAnswer(option1),
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.white,
-                          foregroundColor: Colors.black,
-                        ),
-                        child: Text(option1),
-                      ),
-
-                      ElevatedButton(
-                        onPressed: () => checkAnswer(option2),
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.white,
-                          foregroundColor: Colors.black,
-                        ),
-                        child: Text(option2),
-                      ),
-                    ],
-
-                    /// 💡 المغزى
+                    /// 2. حالة المغزى
                     if (showMoral)
                       Column(
                         children: [
                           Text(
-                            emotion.isEmpty ? "💡 الفكرة" : emotion,
+                            "المغزى من قصة ($storyTitle) 💡",
                             textAlign: TextAlign.center,
                             style: const TextStyle(
-                              color: Colors.black,
                               fontSize: 20,
                               fontWeight: FontWeight.bold,
+                              color: Colors.blueGrey,
                             ),
                           ),
-                          const SizedBox(height: 8),
+                          const SizedBox(height: 10),
                           Text(
-                            moral.isEmpty ? "👍 أحسنت!" : moral,
+                            moral,
                             textAlign: TextAlign.center,
                             style: const TextStyle(
-                              color: Colors.black,
-                              fontSize: 16,
+                              fontSize: 18,
+                              fontWeight: FontWeight.w500,
                             ),
+                          ),
+                        ],
+                      ),
+
+                    /// 3. حالة السؤال (تقريب المسافات)
+                    if (showQuestion)
+                      Column(
+                        children: [
+                          Text(
+                            question,
+                            textAlign: TextAlign.center,
+                            style: const TextStyle(
+                              fontSize: 20,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.black87,
+                            ),
+                          ),
+                          const SizedBox(height: 10),
+                          Row(
+                            mainAxisAlignment:
+                                MainAxisAlignment.center, // تجميع في المنتصف
+                            children: [
+                              _buildOptionChip(option2),
+                              const SizedBox(width: 10), // مسافة صغيرة قبل أو
+                              const Text(
+                                "أو",
+                                style: TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 16,
+                                ),
+                              ),
+                              const SizedBox(width: 10), // مسافة صغيرة بعد أو
+                              _buildOptionChip(option1),
+                            ],
                           ),
                         ],
                       ),
@@ -255,6 +373,24 @@ class _RobotScreenState extends State<RobotScreen> {
               ),
             ),
         ],
+      ),
+    );
+  }
+
+  Widget _buildOptionChip(String label) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      decoration: BoxDecoration(
+        color: Colors.blue.shade50,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: Colors.blueAccent.withOpacity(0.3)),
+      ),
+      child: Text(
+        label,
+        style: const TextStyle(
+          color: Colors.blueAccent,
+          fontWeight: FontWeight.w600,
+        ),
       ),
     );
   }

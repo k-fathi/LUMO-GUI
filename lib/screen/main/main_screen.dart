@@ -3,11 +3,10 @@ import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-import '../../soundsAnimal/animalssounds.dart';
 import '../game/game_levels_screen.dart';
 import '../learn/learn_level_screen.dart';
 import '../draw/main_drawing_screen.dart';
-import '../../utils/timer_controller.dart';
+import '../splash/splash_screen.dart';
 import '../robot_screen/spin_learn_screen.dart';
 
 class MainScreen extends StatefulWidget {
@@ -40,19 +39,13 @@ class _MainScreenState extends State<MainScreen> {
         title: const Text('End Session'),
         content: const Text('Are you want to end the session now?'),
         actions: [
-          TextButton(
-            onPressed: () => Get.back(),
-            child: const Text('Cancel'),
-          ),
+          TextButton(onPressed: () => Get.back(), child: const Text('Cancel')),
           TextButton(
             onPressed: () {
               Get.back();
-              Get.find<TimerController>().endSession();
+              Get.offAll(() => const SplashFaceScreen());
             },
-            child: const Text(
-              'Yes',
-              style: TextStyle(color: Colors.red),
-            ),
+            child: const Text('Yes', style: TextStyle(color: Colors.red)),
           ),
         ],
       ),
@@ -88,7 +81,6 @@ class _MainScreenState extends State<MainScreen> {
             padding: const EdgeInsets.all(12),
             child: Column(
               children: [
-
                 Text(
                   'Hello',
                   style: GoogleFonts.poppins(
@@ -109,39 +101,71 @@ class _MainScreenState extends State<MainScreen> {
 
                 const SizedBox(height: 10),
 
-                /// ✅ الجريد
+                /// ✅ الخمس كروت في صف واحد وفي المنتصف
                 Expanded(
-                  child: GridView.count(
-                    crossAxisCount: 3,
-                    crossAxisSpacing: 8,
-                    mainAxisSpacing: 8,
-                    childAspectRatio: 1.1,
+                  child: Center(
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        SizedBox(
+                          width: 200,
+                          height: 200,
+                          child: _buildCard(
+                            'Learn',
+                            '📚',
+                            const Color(0xFFE8F5E9),
+                            () {
+                              Get.to(() => LearnLevels());
+                            },
+                          ),
+                        ),
 
-                    children: [
+                        const SizedBox(width: 12),
 
-                      _buildCard('Learn', '📚', const Color(0xFFE8F5E9), () {
-                        Get.to(() => LearnLevels());
-                      }),
+                        SizedBox(
+                          width: 200,
+                          height: 200,
+                          child: _buildCard(
+                            'Story',
+                            '🤖',
+                            const Color(0xFFE3F2FD),
+                            () {
+                              Get.to(() => RobotScreen());
+                            },
+                          ),
+                        ),
 
-                      _buildCard('Animal Sounds', '🐶', const Color(0xFFD1C4E9), () {
-                        Get.to(() => AnimalSoundsScreen());
-                      }, isSpecial: true),
+                        const SizedBox(width: 12),
 
-                      _buildCard('Story', '🤖', const Color(0xFFE3F2FD), () {
-                        Get.to(() => RobotScreen());
-                      }),
+                        SizedBox(
+                          width: 200,
+                          height: 200,
+                          child: _buildCard(
+                            'Game',
+                            '🎮',
+                            const Color(0xFFFFF3E0),
+                            () {
+                              Get.to(() => GameLevels());
+                            },
+                          ),
+                        ),
 
-                      _buildCard('Game', '🎮', const Color(0xFFFFF3E0), () {
-                        Get.to(() => GameLevels());
-                      }),
+                        const SizedBox(width: 12),
 
-                      _buildCard('Drawing', '🎨', const Color(0xFFFCE4EC), () {
-                        Get.to(() => MainDrawingScreen());
-                      }),
-
-                      /// 👇 كارت فاضي عشان التوسيط
-                      const SizedBox(),
-                    ],
+                        SizedBox(
+                          width: 200,
+                          height: 200,
+                          child: _buildCard(
+                            'Drawing',
+                            '🎨',
+                            const Color(0xFFFCE4EC),
+                            () {
+                              Get.to(() => MainDrawingScreen());
+                            },
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
                 ),
               ],
@@ -153,12 +177,12 @@ class _MainScreenState extends State<MainScreen> {
   }
 
   Widget _buildCard(
-      String title,
-      String icon,
-      Color color,
-      VoidCallback onTap, {
-        bool isSpecial = false,
-      }) {
+    String title,
+    String icon,
+    Color color,
+    VoidCallback onTap, {
+    bool isSpecial = false,
+  }) {
     return InkWell(
       onTap: onTap,
       borderRadius: BorderRadius.circular(16),
@@ -166,8 +190,8 @@ class _MainScreenState extends State<MainScreen> {
         decoration: BoxDecoration(
           gradient: isSpecial
               ? const LinearGradient(
-            colors: [Color(0xFFD1C4E9), Color(0xFFD1C4E9)],
-          )
+                  colors: [Color(0xFFD1C4E9), Color(0xFFD1C4E9)],
+                )
               : null,
           color: isSpecial ? null : color,
           borderRadius: BorderRadius.circular(16),
@@ -175,13 +199,13 @@ class _MainScreenState extends State<MainScreen> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Text(
-              icon,
-              style: TextStyle(fontSize: isSpecial ? 42 : 34),
-            ),
+            Text(icon, style: TextStyle(fontSize: isSpecial ? 42 : 34)),
+
             const SizedBox(height: 6),
+
             Text(
               title,
+              textAlign: TextAlign.center,
               style: GoogleFonts.poppins(
                 fontSize: 13,
                 fontWeight: FontWeight.bold,

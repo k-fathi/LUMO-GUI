@@ -1,7 +1,4 @@
-import 'package:kids_world_app/soundsAnimal/pages/animal_info_page.dart';
-import 'package:kids_world_app/soundsAnimal/pages/favorites_page.dart';
 import 'package:kids_world_app/soundsAnimal/pages/quiz_start_page.dart';
-import 'package:kids_world_app/soundsAnimal/pages/search_page.dart';
 import 'package:kids_world_app/soundsAnimal/providers/favorites_provider.dart';
 import 'package:kids_world_app/soundsAnimal/widgets/banner_ad_widget.dart';
 import 'package:easy_localization/easy_localization.dart';
@@ -22,7 +19,6 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -31,9 +27,7 @@ class _HomePageState extends State<HomePage> {
         children: [
           const BannerAdWidget(),
           _buildCategoryList(),
-          Expanded(
-            child: _buildAnimalGrid(),
-          ),
+          Expanded(child: _buildAnimalGrid()),
         ],
       ),
     );
@@ -50,7 +44,6 @@ class _HomePageState extends State<HomePage> {
             padding: const EdgeInsets.symmetric(horizontal: 8),
             itemCount: categoryProvider.categories.length + 1,
             itemBuilder: (context, index) {
-
               if (index == 0) {
                 return GestureDetector(
                   onTap: () => categoryProvider.selectCategory(null),
@@ -104,8 +97,7 @@ class _HomePageState extends State<HomePage> {
             style: TextStyle(
               fontSize: 11,
               color: isSelected ? Colors.white : Colors.black,
-              fontWeight:
-              isSelected ? FontWeight.bold : FontWeight.normal,
+              fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
             ),
             textAlign: TextAlign.center,
           ),
@@ -117,23 +109,25 @@ class _HomePageState extends State<HomePage> {
   Widget _buildAnimalGrid() {
     return Consumer2<CategoryProvider, FavoritesProvider>(
       builder: (context, categoryProvider, favoritesProvider, child) {
-
         List<Animal> filteredAnimals =
-        categoryProvider.selectedCategoryId == null
+            categoryProvider.selectedCategoryId == null
             ? AnimalRepository.animals
             : AnimalRepository.animals
-            .where((animal) => categoryProvider
-            .getAnimalIdsByCategory(
-            categoryProvider.selectedCategoryId!)
-            .contains(animal.index))
-            .toList();
+                  .where(
+                    (animal) => categoryProvider
+                        .getAnimalIdsByCategory(
+                          categoryProvider.selectedCategoryId!,
+                        )
+                        .contains(animal.index),
+                  )
+                  .toList();
 
         return GridView.builder(
           padding: const EdgeInsets.all(8),
 
           gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-            crossAxisCount: 3, // ✅ 3 كروت
-            childAspectRatio: 0.75, // ✅ مناسب للصورة
+            crossAxisCount: 4, // ✅ 3 كروت
+            childAspectRatio: 1, // ✅ مناسب للصورة
             crossAxisSpacing: 8,
             mainAxisSpacing: 8,
           ),
@@ -160,7 +154,6 @@ class _HomePageState extends State<HomePage> {
                 color: Colors.blue[100 * ((index % 8) + 1)],
                 child: Column(
                   children: [
-
                     Expanded(
                       child: Image.asset(
                         animal.imagePath,
@@ -193,10 +186,7 @@ class _HomePageState extends State<HomePage> {
     return AppBar(
       title: Text(
         "Animal Sounds".tr(),
-        style: const TextStyle(
-          fontSize: 20,
-          fontWeight: FontWeight.bold,
-        ),
+        style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
       ),
       leading: IconButton(
         icon: const Icon(Icons.arrow_back),

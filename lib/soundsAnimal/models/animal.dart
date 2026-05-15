@@ -39,12 +39,12 @@ class Animal {
   }
 
   Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = new Map<String, dynamic>();
+    final Map<String, dynamic> data = <String, dynamic>{};
     data['id'] = index;
-    data['name'] = this.name;
-    data['description'] = this.description;
-    data['imageUrl'] = this.imagePath;
-    data['soundPath'] = this.soundPath;
+    data['name'] = name;
+    data['description'] = description;
+    data['imageUrl'] = imagePath;
+    data['soundPath'] = soundPath;
     return data;
   }
 }

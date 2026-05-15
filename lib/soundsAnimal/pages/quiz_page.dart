@@ -11,7 +11,7 @@ import 'package:flutter_tts/flutter_tts.dart';
 import 'package:provider/provider.dart';
 
 class QuizPage extends StatefulWidget {
-  const QuizPage({Key? key}) : super(key: key);
+  const QuizPage({super.key});
 
   @override
   State<QuizPage> createState() => _QuizPageState();
@@ -67,10 +67,7 @@ class _QuizPageState extends State<QuizPage> {
       appBar: AppBar(
         title: Text(
           'quiz'.tr(),
-          style: const TextStyle(
-            fontSize: 24,
-            fontWeight: FontWeight.bold,
-          ),
+          style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
         ),
         backgroundColor: Colors.blue,
         elevation: 0,
@@ -106,10 +103,12 @@ class _QuizPageState extends State<QuizPage> {
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           Text(
-            'quiz_progress.question_progress'.tr(namedArgs: {
-              'current': '${_currentQuestionIndex + 1}',
-              'total': '${questions.length}'
-            }),
+            'quiz_progress.question_progress'.tr(
+              namedArgs: {
+                'current': '${_currentQuestionIndex + 1}',
+                'total': '${questions.length}',
+              },
+            ),
             style: const TextStyle(
               color: Colors.white,
               fontSize: 18,
@@ -147,10 +146,7 @@ class _QuizPageState extends State<QuizPage> {
                     decoration: BoxDecoration(
                       shape: BoxShape.circle,
                       color: _getProgressDotColor(index),
-                      border: Border.all(
-                        color: Colors.blue,
-                        width: 2,
-                      ),
+                      border: Border.all(color: Colors.blue, width: 2),
                     ),
                     child: Center(
                       child: Text(
@@ -198,19 +194,20 @@ class _QuizPageState extends State<QuizPage> {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text(
-                'quiz_progress.remaining'.tr(namedArgs: {
-                  'count': '${questions.length - _currentQuestionIndex}'
-                }),
-                style: const TextStyle(
-                  color: Colors.black54,
-                  fontSize: 14,
+                'quiz_progress.remaining'.tr(
+                  namedArgs: {
+                    'count': '${questions.length - _currentQuestionIndex}',
+                  },
                 ),
+                style: const TextStyle(color: Colors.black54, fontSize: 14),
               ),
               Text(
-                'quiz_progress.completion'.tr(namedArgs: {
-                  'percent':
-                      '${((_currentQuestionIndex) / questions.length * 100).toInt()}'
-                }),
+                'quiz_progress.completion'.tr(
+                  namedArgs: {
+                    'percent':
+                        '${((_currentQuestionIndex) / questions.length * 100).toInt()}',
+                  },
+                ),
                 style: const TextStyle(
                   color: Colors.blue,
                   fontWeight: FontWeight.bold,
@@ -230,7 +227,7 @@ class _QuizPageState extends State<QuizPage> {
       if (question.userAnswer != null) {
         bool wasCorrect =
             questions[index].options.indexOf(question.userAnswer!) ==
-                questions[index].correctOptionIndex;
+            questions[index].correctOptionIndex;
         return wasCorrect ? Colors.green : Colors.red;
       }
       return Colors.grey;
@@ -243,14 +240,13 @@ class _QuizPageState extends State<QuizPage> {
 
   Widget _buildQuestionCard() {
     final question = questions[_currentQuestionIndex];
-    final isSoundQuestion =
-        question.question.contains("quiz_questions.which_animal_sound".tr());
+    final isSoundQuestion = question.question.contains(
+      "quiz_questions.which_animal_sound".tr(),
+    );
 
     return Card(
       elevation: 8,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(20),
-      ),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
       child: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(
@@ -271,10 +267,7 @@ class _QuizPageState extends State<QuizPage> {
                 ),
                 child: ClipRRect(
                   borderRadius: BorderRadius.circular(15),
-                  child: Image.asset(
-                    question.imagePath!,
-                    fit: BoxFit.contain,
-                  ),
+                  child: Image.asset(question.imagePath!, fit: BoxFit.contain),
                 ),
               )
             else if (isSoundQuestion && question.soundPath != null)
@@ -317,7 +310,8 @@ class _QuizPageState extends State<QuizPage> {
                   ),
                   color: Colors.blue,
                   padding: const EdgeInsets.symmetric(
-                      vertical: 8), // Düğme için padding
+                    vertical: 8,
+                  ), // Düğme için padding
                 ),
               ],
             ),
@@ -330,8 +324,9 @@ class _QuizPageState extends State<QuizPage> {
   void _playSound(String soundPath) async {
     try {
       await audioPlayer.stop();
-      String cleanPath =
-          soundPath.startsWith('assets/') ? soundPath.substring(7) : soundPath;
+      String cleanPath = soundPath.startsWith('assets/')
+          ? soundPath.substring(7)
+          : soundPath;
       await audioPlayer.play(AssetSource(cleanPath));
 
       audioPlayer.onPlayerComplete.listen((event) {});
@@ -370,8 +365,10 @@ class _QuizPageState extends State<QuizPage> {
               style: ElevatedButton.styleFrom(
                 backgroundColor: buttonColor,
                 disabledBackgroundColor: buttonColor,
-                padding:
-                    const EdgeInsets.symmetric(vertical: 7, horizontal: 20),
+                padding: const EdgeInsets.symmetric(
+                  vertical: 7,
+                  horizontal: 20,
+                ),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(15),
                 ),
@@ -392,10 +389,7 @@ class _QuizPageState extends State<QuizPage> {
                   ),
                   IconButton(
                     onPressed: () => _speak(option),
-                    icon: const Icon(
-                      Icons.volume_up,
-                      size: 30,
-                    ),
+                    icon: const Icon(Icons.volume_up, size: 30),
                     color: textColor,
                   ),
                   if (_isAnswered)
@@ -421,8 +415,9 @@ class _QuizPageState extends State<QuizPage> {
       questions[_currentQuestionIndex].userAnswer = answer;
     });
 
-    final selectedIndex =
-        questions[_currentQuestionIndex].options.indexOf(answer);
+    final selectedIndex = questions[_currentQuestionIndex].options.indexOf(
+      answer,
+    );
     final isCorrect =
         selectedIndex == questions[_currentQuestionIndex].correctOptionIndex;
 
@@ -453,18 +448,19 @@ class _QuizPageState extends State<QuizPage> {
     );
 
     // Başarı yüzdesini hesapla
-    final successPercent =
-        ((_score / questions.length) * 100).toStringAsFixed(0);
+    final successPercent = ((_score / questions.length) * 100).toStringAsFixed(
+      0,
+    );
 
     // Okunacak metinleri Türkçe cümle yapısına uygun hazırla
     final textsToRead = [
       'quiz_completed'.tr(), // "Quiz tamamlandı!"
-      'result_correct_answers'.tr(namedArgs: {
-        'count': '$_score',
-        'total': '${questions.length}'
-      }), // "5 sorudan 3 tanesini doğru bildiniz"
+      'result_correct_answers'.tr(
+        namedArgs: {'count': '$_score', 'total': '${questions.length}'},
+      ), // "5 sorudan 3 tanesini doğru bildiniz"
       'result_success_rate'.tr(
-          namedArgs: {'percent': successPercent}), // "Başarı oranınız yüzde 60"
+        namedArgs: {'percent': successPercent},
+      ), // "Başarı oranınız yüzde 60"
     ];
 
     showDialog(
@@ -506,18 +502,24 @@ class _QuizPageState extends State<QuizPage> {
               ),
               const SizedBox(height: 20),
               Text(
-                'quiz_result.score'.tr(namedArgs: {
-                  'correct': '$_score',
-                  'total': '${questions.length}'
-                }),
-                style:
-                    const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                'quiz_result.score'.tr(
+                  namedArgs: {
+                    'correct': '$_score',
+                    'total': '${questions.length}',
+                  },
+                ),
+                style: const TextStyle(
+                  fontSize: 20,
+                  fontWeight: FontWeight.bold,
+                ),
               ),
               Text(
-                'quiz_result.success_rate'.tr(namedArgs: {
-                  'percent':
-                      '${((_score / questions.length) * 100).toStringAsFixed(0)}'
-                }),
+                'quiz_result.success_rate'.tr(
+                  namedArgs: {
+                    'percent': ((_score / questions.length) * 100)
+                        .toStringAsFixed(0),
+                  },
+                ),
                 style: const TextStyle(fontSize: 18, color: Colors.grey),
               ),
             ],

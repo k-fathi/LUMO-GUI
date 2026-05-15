@@ -4,7 +4,7 @@ import 'package:google_fonts/google_fonts.dart';
 
 import '../../models/patient_model.dart';
 import '../../services/api_service.dart';
-import '../../utils/timer_controller.dart';
+
 import '../auth/sign_in_screen.dart';
 import '../main/main_screen.dart';
 
@@ -148,8 +148,7 @@ class _PatientsScreenState extends State<PatientsScreen> {
           child: ElevatedButton(
             onPressed: _selectedPatient != null
                 ? () {
-                    // Start timer and navigate to main application screen
-                    Get.find<TimerController>().startTimer();
+                    // Navigate to main application screen
                     Get.offAll(() => const MainScreen());
                   }
                 : null,

@@ -11,25 +11,66 @@ class ShapeLearnScreen extends StatefulWidget {
   State<ShapeLearnScreen> createState() => _ShapeLearnScreenState();
 }
 
-class _ShapeLearnScreenState extends State<ShapeLearnScreen> with SingleTickerProviderStateMixin {
+class _ShapeLearnScreenState extends State<ShapeLearnScreen>
+    with SingleTickerProviderStateMixin {
   final FlutterTts flutterTts = FlutterTts();
   String? selectedShape;
   late AnimationController _animationController;
 
   // Basic shapes for kids to learn
   final List<Map<String, dynamic>> shapes = [
-    {'name': 'Circle', 'color': const Color(0xFF6C5CE7), 'type': ShapeType.circle},
-    {'name': 'Square', 'color': const Color(0xFFFF6B9D), 'type': ShapeType.square},
-    {'name': 'Triangle', 'color': const Color(0xFF4ECDC4), 'type': ShapeType.triangle},
-    {'name': 'Rectangle', 'color': const Color(0xFFFFA07A), 'type': ShapeType.rectangle},
+    {
+      'name': 'Circle',
+      'color': const Color(0xFF6C5CE7),
+      'type': ShapeType.circle,
+    },
+    {
+      'name': 'Square',
+      'color': const Color(0xFFFF6B9D),
+      'type': ShapeType.square,
+    },
+    {
+      'name': 'Triangle',
+      'color': const Color(0xFF4ECDC4),
+      'type': ShapeType.triangle,
+    },
+    {
+      'name': 'Rectangle',
+      'color': const Color(0xFFFFA07A),
+      'type': ShapeType.rectangle,
+    },
     {'name': 'Star', 'color': const Color(0xFFFFD700), 'type': ShapeType.star},
-    {'name': 'Heart', 'color': const Color(0xFFFF2D55), 'type': ShapeType.heart},
-    {'name': 'Diamond', 'color': const Color(0xFF00B894), 'type': ShapeType.diamond},
-    {'name': 'Pentagon', 'color': const Color(0xFFAF52DE), 'type': ShapeType.pentagon},
-    {'name': 'Hexagon', 'color': const Color(0xFF5AC8FA), 'type': ShapeType.hexagon},
+    {
+      'name': 'Heart',
+      'color': const Color(0xFFFF2D55),
+      'type': ShapeType.heart,
+    },
+    {
+      'name': 'Diamond',
+      'color': const Color(0xFF00B894),
+      'type': ShapeType.diamond,
+    },
+    {
+      'name': 'Pentagon',
+      'color': const Color(0xFFAF52DE),
+      'type': ShapeType.pentagon,
+    },
+    {
+      'name': 'Hexagon',
+      'color': const Color(0xFF5AC8FA),
+      'type': ShapeType.hexagon,
+    },
     {'name': 'Oval', 'color': const Color(0xFFFF9500), 'type': ShapeType.oval},
-    {'name': 'Semicircle', 'color': const Color(0xFFFF7675), 'type': ShapeType.semicircle},
-    {'name': 'Octagon', 'color': const Color(0xFFA29BFE), 'type': ShapeType.octagon},
+    {
+      'name': 'Semicircle',
+      'color': const Color(0xFFFF7675),
+      'type': ShapeType.semicircle,
+    },
+    {
+      'name': 'Octagon',
+      'color': const Color(0xFFA29BFE),
+      'type': ShapeType.octagon,
+    },
   ];
 
   @override
@@ -85,9 +126,7 @@ class _ShapeLearnScreenState extends State<ShapeLearnScreen> with SingleTickerPr
             children: [
               _buildHeader(),
               _buildInstructions(),
-              Expanded(
-                child: _buildShapeGrid(),
-              ),
+              Expanded(child: _buildShapeGrid()),
             ],
           ),
         ),
@@ -200,30 +239,38 @@ class _ShapeLearnScreenState extends State<ShapeLearnScreen> with SingleTickerPr
   }
 
   Widget _buildShapeGrid() {
-    return Padding(
-      padding: const EdgeInsets.all(16),
-      child: GridView.builder(
-        gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-          crossAxisCount: 3,
-          crossAxisSpacing: 16,
-          mainAxisSpacing: 16,
-          childAspectRatio: 0.85,
-        ),
-        itemCount: shapes.length,
-        itemBuilder: (context, index) {
-          final item = shapes[index];
-          final shapeName = item['name'] as String;
-          final color = item['color'] as Color;
-          final type = item['type'] as ShapeType;
-          final isSelected = selectedShape == shapeName;
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: GridView.builder(
+          shrinkWrap: true,
+          gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+            crossAxisCount: 5,
+            crossAxisSpacing: 16,
+            mainAxisSpacing: 16,
+            childAspectRatio: 1,
+          ),
+          itemCount: shapes.length,
+          itemBuilder: (context, index) {
+            final item = shapes[index];
+            final shapeName = item['name'] as String;
+            final color = item['color'] as Color;
+            final type = item['type'] as ShapeType;
+            final isSelected = selectedShape == shapeName;
 
-          return _buildShapeCard(shapeName, color, type, isSelected);
-        },
+            return _buildShapeCard(shapeName, color, type, isSelected);
+          },
+        ),
       ),
     );
   }
 
-  Widget _buildShapeCard(String shapeName, Color color, ShapeType type, bool isSelected) {
+  Widget _buildShapeCard(
+    String shapeName,
+    Color color,
+    ShapeType type,
+    bool isSelected,
+  ) {
     return GestureDetector(
       onTap: () => _speak(shapeName),
       child: AnimatedScale(
@@ -259,27 +306,37 @@ class _ShapeLearnScreenState extends State<ShapeLearnScreen> with SingleTickerPr
                 ),
               ),
               // Shape and name
-              Center(
+              Positioned.fill(
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
+                    const SizedBox(height: 12),
                     // Shape icon
-                    SizedBox(
-                      width: 80,
-                      height: 80,
-                      child: CustomPaint(
-                        painter: ShapePainter(type: type, color: color),
+                    Expanded(
+                      child: Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: CustomPaint(
+                          size: Size.infinite,
+                          painter: ShapePainter(type: type, color: color),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 4.0),
+                      child: FittedBox(
+                        fit: BoxFit.scaleDown,
+                        child: Text(
+                          shapeName,
+                          style: GoogleFonts.poppins(
+                            fontSize: 14,
+                            fontWeight: FontWeight.w700,
+                            color: const Color(0xFF2D3436),
+                          ),
+                        ),
                       ),
                     ),
                     const SizedBox(height: 12),
-                    Text(
-                      shapeName,
-                      style: GoogleFonts.poppins(
-                        fontSize: 16,
-                        fontWeight: FontWeight.w700,
-                        color: const Color(0xFF2D3436),
-                      ),
-                    ),
                   ],
                 ),
               ),
@@ -371,8 +428,14 @@ class ShapePainter extends CustomPainter {
       case ShapeType.triangle:
         final path = Path()
           ..moveTo(center.dx, center.dy - size.height * 0.35)
-          ..lineTo(center.dx - size.width * 0.35, center.dy + size.height * 0.25)
-          ..lineTo(center.dx + size.width * 0.35, center.dy + size.height * 0.25)
+          ..lineTo(
+            center.dx - size.width * 0.35,
+            center.dy + size.height * 0.25,
+          )
+          ..lineTo(
+            center.dx + size.width * 0.35,
+            center.dy + size.height * 0.25,
+          )
           ..close();
         canvas.drawPath(path, paint);
         canvas.drawPath(path, strokePaint);
@@ -389,7 +452,12 @@ class ShapePainter extends CustomPainter {
         break;
 
       case ShapeType.star:
-        final path = _createStarPath(center, size.width * 0.35, size.width * 0.15, 5);
+        final path = _createStarPath(
+          center,
+          size.width * 0.35,
+          size.width * 0.15,
+          5,
+        );
         canvas.drawPath(path, paint);
         canvas.drawPath(path, strokePaint);
         break;
@@ -451,7 +519,12 @@ class ShapePainter extends CustomPainter {
     }
   }
 
-  Path _createStarPath(Offset center, double outerRadius, double innerRadius, int points) {
+  Path _createStarPath(
+    Offset center,
+    double outerRadius,
+    double innerRadius,
+    int points,
+  ) {
     final path = Path();
     final angle = math.pi / points;
 
@@ -480,16 +553,22 @@ class ShapePainter extends CustomPainter {
 
     // Left curve
     path.cubicTo(
-      centerX - width / 2, top,
-      centerX - width / 2, top + height / 3,
-      centerX, top + height * 0.75,
+      centerX - width / 2,
+      top,
+      centerX - width / 2,
+      top + height / 3,
+      centerX,
+      top + height * 0.75,
     );
 
     // Right curve
     path.cubicTo(
-      centerX + width / 2, top + height / 3,
-      centerX + width / 2, top,
-      centerX, top + height / 4,
+      centerX + width / 2,
+      top + height / 3,
+      centerX + width / 2,
+      top,
+      centerX,
+      top + height / 4,
     );
 
     path.close();
