@@ -1,5 +1,5 @@
+import 'dart:io';
 import 'package:flutter/material.dart';
-import 'package:flutter_tts/flutter_tts.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:get/get.dart';
 
@@ -12,7 +12,6 @@ class AlphabetLearningScreen extends StatefulWidget {
 
 class _AlphabetLearningScreenState extends State<AlphabetLearningScreen>
     with SingleTickerProviderStateMixin {
-  final FlutterTts flutterTts = FlutterTts();
   String? selectedLetter;
   late AnimationController _animationController;
 
@@ -48,18 +47,10 @@ class _AlphabetLearningScreenState extends State<AlphabetLearningScreen>
   @override
   void initState() {
     super.initState();
-    _initializeTts();
     _animationController = AnimationController(
       vsync: this,
       duration: const Duration(milliseconds: 300),
     );
-  }
-
-  Future<void> _initializeTts() async {
-    await flutterTts.setLanguage("en-US");
-    await flutterTts.setSpeechRate(0.4);
-    await flutterTts.setVolume(1.0);
-    await flutterTts.setPitch(1.2);
   }
 
   Future<void> _speak(String letter) async {
@@ -69,12 +60,27 @@ class _AlphabetLearningScreenState extends State<AlphabetLearningScreen>
     _animationController.forward().then((_) {
       _animationController.reverse();
     });
-    await flutterTts.speak(letter);
+
+    // الإعدادات المطلوبة: السرعة 165، الـ Pitch 70، والصوت الأنثوي f4
+    final List<String> args = ['-s', '165', '-p', '70', '-v', 'en-us+f4', letter];
+
+    try {
+      if (Platform.isWindows) {
+        await Process.run('espeak', args);
+      } else if (Platform.isLinux) {
+        // تشغيل espeak-ng الافتراضي على لينكس / راسبيري باي
+        ProcessResult result = await Process.run('espeak-ng', args);
+        if (result.exitCode != 0) {
+          await Process.run('espeak', args);
+        }
+      }
+    } catch (e) {
+      debugPrint("eSpeak Error: $e");
+    }
   }
 
   @override
   void dispose() {
-    flutterTts.stop();
     _animationController.dispose();
     super.dispose();
   }
@@ -268,7 +274,6 @@ class _AlphabetLearningScreenState extends State<AlphabetLearningScreen>
           ),
           child: Stack(
             children: [
-              // Background pattern
               Positioned.fill(
                 child: ClipRRect(
                   borderRadius: BorderRadius.circular(20),
@@ -279,7 +284,6 @@ class _AlphabetLearningScreenState extends State<AlphabetLearningScreen>
                   ),
                 ),
               ),
-              // Letter
               Positioned.fill(
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
@@ -322,7 +326,6 @@ class _AlphabetLearningScreenState extends State<AlphabetLearningScreen>
                   ],
                 ),
               ),
-              // Play icon indicator
               if (isSelected)
                 Positioned(
                   top: 8,
@@ -351,7 +354,6 @@ class _AlphabetLearningScreenState extends State<AlphabetLearningScreen>
   }
 }
 
-// Custom painter for card pattern
 class LetterCardPatternPainter extends CustomPainter {
   final Color color;
 
@@ -364,7 +366,6 @@ class LetterCardPatternPainter extends CustomPainter {
       ..style = PaintingStyle.stroke
       ..strokeWidth = 2.0;
 
-    // Draw diagonal lines
     for (double i = -size.height; i < size.width; i += 20) {
       canvas.drawLine(
         Offset(i, 0),

@@ -1,5 +1,5 @@
+import 'dart:io';
 import 'package:flutter/material.dart';
-import 'package:flutter_tts/flutter_tts.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:get/get.dart';
 
@@ -12,7 +12,6 @@ class MonthLearnScreen extends StatefulWidget {
 
 class _MonthLearnScreenState extends State<MonthLearnScreen>
     with SingleTickerProviderStateMixin {
-  final FlutterTts flutterTts = FlutterTts();
   String? selectedMonth;
   late AnimationController _animationController;
 
@@ -143,18 +142,10 @@ class _MonthLearnScreenState extends State<MonthLearnScreen>
   @override
   void initState() {
     super.initState();
-    _initializeTts();
     _animationController = AnimationController(
       vsync: this,
       duration: const Duration(milliseconds: 300),
     );
-  }
-
-  Future<void> _initializeTts() async {
-    await flutterTts.setLanguage("en-US");
-    await flutterTts.setSpeechRate(0.4);
-    await flutterTts.setVolume(1.0);
-    await flutterTts.setPitch(1.2);
   }
 
   Future<void> _speak(String monthName) async {
@@ -164,12 +155,27 @@ class _MonthLearnScreenState extends State<MonthLearnScreen>
     _animationController.forward().then((_) {
       _animationController.reverse();
     });
-    await flutterTts.speak(monthName);
+
+    // الإعدادات المطلوبة: سرعة 160، حدة صوت 70، وصوت أنثوي فلتر 4
+    final List<String> args = ['-s', '165', '-p', '70', '-v', 'en-us+f4', monthName];
+
+    try {
+      if (Platform.isWindows) {
+        await Process.run('espeak', args);
+      } else if (Platform.isLinux) {
+        // دعم لـ espeak-ng الأساسي في لينكس/راسبيري باي
+        ProcessResult result = await Process.run('espeak-ng', args);
+        if (result.exitCode != 0) {
+          await Process.run('espeak', args);
+        }
+      }
+    } catch (e) {
+      debugPrint("eSpeak Error: $e");
+    }
   }
 
   @override
   void dispose() {
-    flutterTts.stop();
     _animationController.dispose();
     super.dispose();
   }
@@ -377,7 +383,6 @@ class _MonthLearnScreenState extends State<MonthLearnScreen>
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      // Month Number and Emoji
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
@@ -412,7 +417,6 @@ class _MonthLearnScreenState extends State<MonthLearnScreen>
                         ],
                       ),
                       const SizedBox(height: 4),
-                      // Month Name
                       Expanded(
                         child: Column(
                           mainAxisAlignment: MainAxisAlignment.center,
@@ -445,7 +449,6 @@ class _MonthLearnScreenState extends State<MonthLearnScreen>
                         ),
                       ),
                       const SizedBox(height: 4),
-                      // Days and Season
                       Column(
                         children: [
                           Container(

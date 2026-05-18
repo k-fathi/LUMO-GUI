@@ -1,5 +1,5 @@
+import 'dart:io';
 import 'package:flutter/material.dart';
-import 'package:audioplayers/audioplayers.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:get/get.dart';
 
@@ -12,13 +12,12 @@ class ArabicLearnScreen extends StatefulWidget {
 
 class _ArabicLearnScreenState extends State<ArabicLearnScreen>
     with SingleTickerProviderStateMixin {
-  final AudioPlayer audioPlayer = AudioPlayer();
   String? selectedLetter;
   late AnimationController _animationController;
 
   final List<Map<String, dynamic>> arabicLetters = [
     {'letter': 'ا', 'name': 'Alif', 'color': const Color(0xFF00B894)},
-    {'letter': 'ب', 'name': 'Ba', 'color': const Color(0xFF6C5CE7)},
+    {'letter': 'ب', 'name': 'pa', 'color': const Color(0xFF6C5CE7)},
     {'letter': 'ت', 'name': 'Ta', 'color': const Color(0xFFFF6B9D)},
     {'letter': 'ث', 'name': 'Tha', 'color': const Color(0xFF4ECDC4)},
     {'letter': 'ج', 'name': 'Jeem', 'color': const Color(0xFFFFA07A)},
@@ -57,8 +56,6 @@ class _ArabicLearnScreenState extends State<ArabicLearnScreen>
   }
 
   Future<void> _speak(String letter, String name) async {
-    await audioPlayer.stop();
-
     setState(() {
       selectedLetter = letter;
     });
@@ -67,15 +64,26 @@ class _ArabicLearnScreenState extends State<ArabicLearnScreen>
       _animationController.reverse();
     });
 
-    // اسم الملف لازم يطابق name
-    String fileName = name.toLowerCase();
+    // تمرير الـ name الصوتي لضمان نطق سليم من المحرك للتوافق مع باقي الشاشات
+    final List<String> args = ['-s', '165', '-p', '70', '-v', 'en-us+f4', name];
 
-    await audioPlayer.play(AssetSource('sounds/$fileName.mp3'));
+    try {
+      if (Platform.isWindows) {
+        await Process.run('espeak', args);
+      } else if (Platform.isLinux) {
+        // تشغيل espeak-ng الأساسي على لينكس / راسبيري باي
+        ProcessResult result = await Process.run('espeak-ng', args);
+        if (result.exitCode != 0) {
+          await Process.run('espeak', args);
+        }
+      }
+    } catch (e) {
+      debugPrint("eSpeak Error: $e");
+    }
   }
 
   @override
   void dispose() {
-    audioPlayer.dispose();
     _animationController.dispose();
     super.dispose();
   }
@@ -227,11 +235,11 @@ class _ArabicLearnScreenState extends State<ArabicLearnScreen>
   }
 
   Widget _buildLetterCard(
-    String letter,
-    String name,
-    Color color,
-    bool isSelected,
-  ) {
+      String letter,
+      String name,
+      Color color,
+      bool isSelected,
+      ) {
     return GestureDetector(
       onTap: () => _speak(letter, name),
       child: AnimatedScale(

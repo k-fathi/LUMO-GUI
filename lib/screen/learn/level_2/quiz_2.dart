@@ -1,6 +1,6 @@
 import 'dart:async';
+import 'dart:io';
 import 'package:flutter/material.dart';
-import 'package:flutter_tts/flutter_tts.dart';
 
 import '../level_2/color_learn_screen.dart';
 import '../level_2/day_learn_screen.dart';
@@ -15,7 +15,6 @@ class KidsQuizScreen2 extends StatefulWidget {
 }
 
 class _KidsQuizScreen2State extends State<KidsQuizScreen2> {
-  final FlutterTts tts = FlutterTts();
   int currentQuestion = 0;
   int score = 0;
   bool showFeedback = false;
@@ -34,10 +33,22 @@ class _KidsQuizScreen2State extends State<KidsQuizScreen2> {
 
   void playCurrentSound() async {
     final text = questions[currentQuestion].correct.display;
-    await tts.setLanguage("en-US");
-    await tts.setPitch(1.2);
-    await tts.setSpeechRate(0.5);
-    await tts.speak(text);
+
+    // إعدادات النطق الموحدة للراسبيري باي
+    final List<String> args = ['-s', '165', '-p', '70', '-v', 'en-us+f4', text];
+
+    try {
+      if (Platform.isWindows) {
+        await Process.run('espeak', args);
+      } else if (Platform.isLinux) {
+        ProcessResult result = await Process.run('espeak-ng', args);
+        if (result.exitCode != 0) {
+          await Process.run('espeak', args);
+        }
+      }
+    } catch (e) {
+      debugPrint("eSpeak Error: $e");
+    }
   }
 
   void handleAnswer(QuizItem option) {
@@ -117,93 +128,190 @@ class _KidsQuizScreen2State extends State<KidsQuizScreen2> {
     final currentQ = questions[currentQuestion];
 
     return Scaffold(
-      backgroundColor: Colors.blue[100],
+      backgroundColor: Colors.blue[50], // خلفية ثابتة لحماية العرض
       body: SafeArea(
-        child: Column(
-          children: [
-            Padding(
-              padding: const EdgeInsets.all(12.0),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      const Text(
-                        "Kids Learning Quiz 🎯",
-                        style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
-                      ),
-                      Text(
-                        "Question ${currentQuestion + 1} / ${questions.length}",
-                        style: const TextStyle(fontSize: 18),
-                      )
-                    ],
-                  ),
-                  Container(
-                    padding: const EdgeInsets.all(12),
-                    decoration: BoxDecoration(
-                        gradient: const LinearGradient(colors: [Colors.green, Colors.blue]),
-                        borderRadius: BorderRadius.circular(20)),
-                    child: Column(
+        child: SingleChildScrollView(
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 16.0),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                // Header (تأمين كامل لألوان الخطوط ضد الـ Dark Mode تلقائياً)
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Row(
                       children: [
-                        const Text("Score", style: TextStyle(color: Colors.white)),
-                        Text("$score", style: const TextStyle(fontSize: 24, color: Colors.white, fontWeight: FontWeight.bold)),
+                        // زرار الرجوع المحمي
+                        GestureDetector(
+                          onTap: () => Navigator.pop(context),
+                          child: Container(
+                            padding: const EdgeInsets.all(10),
+                            decoration: BoxDecoration(
+                              color: Colors.white,
+                              borderRadius: BorderRadius.circular(14),
+                              boxShadow: [
+                                BoxShadow(
+                                  color: Colors.black.withOpacity(0.08),
+                                  blurRadius: 8,
+                                  offset: const Offset(0, 3),
+                                ),
+                              ],
+                            ),
+                            child: const Icon(
+                              Icons.arrow_back,
+                              color: Colors.blue,
+                              size: 24,
+                            ),
+                          ),
+                        ),
+                        const SizedBox(width: 16),
+                        Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            const Text(
+                              "Kids Learning Quiz 🎯",
+                              style: TextStyle(
+                                fontSize: 24, // مقاس متناسق للراسبيري
+                                fontWeight: FontWeight.w900,
+                                color: Color(0xFF2D3436), // لون داكن صريح
+                              ),
+                            ),
+                            const SizedBox(height: 2),
+                            Text(
+                              "Question ${currentQuestion + 1} / ${questions.length}",
+                              style: const TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.w600,
+                                color: Color(0xFF636E72), // لون رمادي ثابت وواضح
+                              ),
+                            )
+                          ],
+                        ),
                       ],
                     ),
-                  )
-                ],
-              ),
-            ),
-            const SizedBox(height: 12),
-            GestureDetector(
-              onTap: () => playCurrentSound(),
-              child: Container(
-                padding: const EdgeInsets.all(24),
-                decoration: BoxDecoration(
-                  gradient: const LinearGradient(colors: [Colors.purple, Colors.pink]),
-                  shape: BoxShape.circle,
-                ),
-                child: const Icon(Icons.volume_up, size: 64, color: Colors.white),
-              ),
-            ),
-            const SizedBox(height: 12),
-            const Text("🎧 Listen and tap the correct answer!", style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-
-            const SizedBox(height: 20),
-            Expanded(
-              child: GridView.count(
-                crossAxisCount: 3,
-                mainAxisSpacing: 12,
-                crossAxisSpacing: 12,
-                padding: const EdgeInsets.all(12),
-                children: currentQ.options.map((option) {
-                  Color cardColor = option.color;
-                  bool isSelected = selectedAnswer == option.display;
-                  bool isCorrect = option.display == currentQ.correct.display;
-
-                  if (showFeedback && isSelected) {
-                    cardColor = isCorrect ? Colors.green : Colors.red;
-                  }
-
-                  return GestureDetector(
-                    onTap: () => handleAnswer(option),
-                    child: Container(
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 8),
                       decoration: BoxDecoration(
-                        gradient: LinearGradient(colors: [cardColor.withOpacity(0.8), cardColor]),
-                        borderRadius: BorderRadius.circular(20),
+                        gradient: const LinearGradient(colors: [Color(0xFF00B894), Color(0xFF00D2A0)]),
+                        borderRadius: BorderRadius.circular(16),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.green.withOpacity(0.3),
+                            blurRadius: 8,
+                            offset: const Offset(0, 4),
+                          )
+                        ],
                       ),
-                      child: Center(
-                        child: Text(
-                          option.display,
-                          style: const TextStyle(fontSize: 32, fontWeight: FontWeight.bold, color: Colors.white),
+                      child: Column(
+                        children: [
+                          const Text("Score", style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 13)),
+                          Text("$score", style: const TextStyle(fontSize: 24, color: Colors.white, fontWeight: FontWeight.bold)),
+                        ],
+                      ),
+                    )
+                  ],
+                ),
+
+                const SizedBox(height: 20),
+
+                // Speaker Button (ملموم ليناسب الأبعاد العمودية الضيقة)
+                Center(
+                  child: GestureDetector(
+                    onTap: () => playCurrentSound(),
+                    child: Container(
+                      width: 90,
+                      height: 90,
+                      decoration: BoxDecoration(
+                        gradient: const LinearGradient(colors: [Colors.purple, Colors.pink]),
+                        shape: BoxShape.circle,
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.pink.withOpacity(0.4),
+                            blurRadius: 12,
+                            offset: const Offset(0, 5),
+                          )
+                        ],
+                      ),
+                      child: const Icon(Icons.volume_up, size: 45, color: Colors.white),
+                    ),
+                  ),
+                ),
+
+                const SizedBox(height: 15),
+
+                const Text(
+                  "🎧 Listen and tap the correct answer!",
+                  style: TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.w800,
+                    color: Color(0xFF2D3436), // قفل اللون غامق لمنع اختفائه تماماً
+                  ),
+                ),
+
+                const SizedBox(height: 25),
+
+                // Answer Cards (تعديل الـ Row لضمان عدم حدوث Overflow مع الكلمات الطويلة)
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: currentQ.options.map((option) {
+                    Color cardColor = option.color;
+                    bool isSelected = selectedAnswer == option.display;
+                    bool isCorrect = option.display == currentQ.correct.display;
+
+                    if (showFeedback && isSelected) {
+                      cardColor = isCorrect ? Colors.green : Colors.red;
+                    }
+
+                    return Flexible( // استخدام Flexible لحساب عرض الثلاثة كروت بدقة تلقائياً
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 6.0), // مسافات أفقية ملمومة ومتناسقة
+                        child: GestureDetector(
+                          onTap: () => handleAnswer(option),
+                          child: AspectRatio(
+                            aspectRatio: 1.0, // كروت مربعة تماماً لتوفير مساحة رأسية
+                            child: Container(
+                              decoration: BoxDecoration(
+                                gradient: LinearGradient(
+                                  colors: [cardColor.withOpacity(0.85), cardColor],
+                                  begin: Alignment.topLeft,
+                                  end: Alignment.bottomRight,
+                                ),
+                                borderRadius: BorderRadius.circular(20),
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: cardColor.withOpacity(0.35),
+                                    blurRadius: 10,
+                                    offset: const Offset(0, 5),
+                                  )
+                                ],
+                              ),
+                              child: Center(
+                                child: FittedBox(
+                                  fit: BoxFit.scaleDown, // تصغير مرن للكلمة تلقائياً لو كانت طويلة جداً عن حجم الكارت
+                                  child: Padding(
+                                    padding: const EdgeInsets.all(8.0), // بادينج داخلي خفيف لحماية النص من الحواف
+                                    child: Text(
+                                      option.display,
+                                      style: const TextStyle(
+                                        fontSize: 24, // تصغير الحجم الافتراضي لتستوعب الكلمات الطويلة (أيام/شهور) على الراسبيري
+                                        fontWeight: FontWeight.w900,
+                                        color: Colors.white, // أبيض صريح يظهر بقوة فوق كروت الإجابات الملونة
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ),
                         ),
                       ),
-                    ),
-                  );
-                }).toList(),
-              ),
+                    );
+                  }).toList(),
+                ),
+              ],
             ),
-          ],
+          ),
         ),
       ),
     );
@@ -214,7 +322,7 @@ class _KidsQuizScreen2State extends State<KidsQuizScreen2> {
 class QuizItem {
   final String display;
   final Color color;
-  final String type; // 'color', 'day', 'month'
+  final String type;
 
   QuizItem({required this.display, required this.color, required this.type});
 }
@@ -233,7 +341,7 @@ List<Question> generateQuestions(int count) {
     QuizItem(display: 'Red', color: Colors.red, type: 'color'),
     QuizItem(display: 'Blue', color: Colors.blue, type: 'color'),
     QuizItem(display: 'Green', color: Colors.green, type: 'color'),
-    QuizItem(display: 'Yellow', color: Colors.yellow, type: 'color'),
+    QuizItem(display: 'Yellow', color: Colors.amber, type: 'color'),
     QuizItem(display: 'Purple', color: Colors.purple, type: 'color'),
     QuizItem(display: 'Orange', color: Colors.orange, type: 'color'),
   ];
@@ -242,7 +350,6 @@ List<Question> generateQuestions(int count) {
     QuizItem(display: 'Sunday', color: Colors.pink, type: 'day'),
     QuizItem(display: 'Monday', color: Colors.teal, type: 'day'),
     QuizItem(display: 'Tuesday', color: Colors.orange, type: 'day'),
-    // QuizItem(display: 'Wednesday', color: Colors.green, type: 'day'),
     QuizItem(display: 'Thursday', color: Colors.purple, type: 'day'),
     QuizItem(display: 'Friday', color: Colors.blue, type: 'day'),
     QuizItem(display: 'Saturday', color: Colors.red, type: 'day'),
@@ -257,7 +364,6 @@ List<Question> generateQuestions(int count) {
     QuizItem(display: 'June', color: Colors.blue, type: 'month'),
     QuizItem(display: 'July', color: Colors.purple, type: 'month'),
     QuizItem(display: 'August', color: Colors.teal, type: 'month'),
-    // QuizItem(display: 'September', color: Colors.green, type: 'month'),
     QuizItem(display: 'October', color: Colors.orange, type: 'month'),
     QuizItem(display: 'November', color: Colors.brown, type: 'month'),
     QuizItem(display: 'December', color: Colors.blueGrey, type: 'month'),
@@ -294,4 +400,3 @@ List<Question> generateQuestions(int count) {
   questions.shuffle();
   return questions;
 }
-

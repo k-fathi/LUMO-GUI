@@ -69,7 +69,7 @@ class _DailyLifeLearnScreenState extends State<DailyLifeLearnScreen>
     _animationController.forward().then((_) => _animationController.reverse());
 
     // إعدادات الصوت الأنثوي السريع المطلوبة
-    final List<String> args = ['-s', '165', '-p', '50', '-v', 'en-us+f3', text];
+    final List<String> args = ['-s', '165', '-p', '70', '-v', 'en-us+f4', text];
 
     try {
       if (Platform.isWindows) {

@@ -1,5 +1,5 @@
+import 'dart:io';
 import 'package:flutter/material.dart';
-import 'package:flutter_tts/flutter_tts.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:get/get.dart';
 
@@ -12,7 +12,6 @@ class ColorLearnScreen extends StatefulWidget {
 
 class _ColorLearnScreenState extends State<ColorLearnScreen>
     with SingleTickerProviderStateMixin {
-  final FlutterTts flutterTts = FlutterTts();
   String? selectedColor;
   late AnimationController _animationController;
 
@@ -43,18 +42,10 @@ class _ColorLearnScreenState extends State<ColorLearnScreen>
   @override
   void initState() {
     super.initState();
-    _initializeTts();
     _animationController = AnimationController(
       vsync: this,
       duration: const Duration(milliseconds: 300),
     );
-  }
-
-  Future<void> _initializeTts() async {
-    await flutterTts.setLanguage("en-US");
-    await flutterTts.setSpeechRate(0.4);
-    await flutterTts.setVolume(1.0);
-    await flutterTts.setPitch(1.2);
   }
 
   Future<void> _speak(String colorName) async {
@@ -64,12 +55,27 @@ class _ColorLearnScreenState extends State<ColorLearnScreen>
     _animationController.forward().then((_) {
       _animationController.reverse();
     });
-    await flutterTts.speak(colorName);
+
+    // الإعدادات المطلوبة بدقة: سرعة 160، حدة صوت 70، وصوت أنثوي فلتر 4
+    final List<String> args = ['-s', '165', '-p', '70', '-v', 'en-us+f4', colorName];
+
+    try {
+      if (Platform.isWindows) {
+        await Process.run('espeak', args);
+      } else if (Platform.isLinux) {
+        // محاولة espeak-ng الأساسية في لينكس/راسبيري باي
+        ProcessResult result = await Process.run('espeak-ng', args);
+        if (result.exitCode != 0) {
+          await Process.run('espeak', args);
+        }
+      }
+    } catch (e) {
+      debugPrint("eSpeak Error: $e");
+    }
   }
 
   @override
   void dispose() {
-    flutterTts.stop();
     _animationController.dispose();
     super.dispose();
   }
@@ -239,7 +245,6 @@ class _ColorLearnScreenState extends State<ColorLearnScreen>
   }
 
   Widget _buildColorCard(String colorName, Color color, bool isSelected) {
-    // Determine if text should be white or black based on color brightness
     final brightness = color.computeLuminance();
     final textColor = brightness > 0.5 ? Colors.black : Colors.white;
     final borderColor = brightness > 0.8 ? Colors.grey.shade300 : color;
@@ -265,7 +270,6 @@ class _ColorLearnScreenState extends State<ColorLearnScreen>
           ),
           child: Stack(
             children: [
-              // Decorative circles pattern
               Positioned(
                 top: -20,
                 right: -20,
@@ -290,12 +294,10 @@ class _ColorLearnScreenState extends State<ColorLearnScreen>
                   ),
                 ),
               ),
-              // Color name
               Positioned.fill(
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    // Color swatch icon
                     Expanded(
                       child: Container(
                         margin: const EdgeInsets.all(8),
@@ -348,7 +350,6 @@ class _ColorLearnScreenState extends State<ColorLearnScreen>
                   ],
                 ),
               ),
-              // Play icon indicator
               if (isSelected)
                 Positioned(
                   top: 8,

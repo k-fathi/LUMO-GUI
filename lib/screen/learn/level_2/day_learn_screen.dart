@@ -1,5 +1,5 @@
+import 'dart:io';
 import 'package:flutter/material.dart';
-import 'package:flutter_tts/flutter_tts.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:get/get.dart';
 
@@ -11,7 +11,6 @@ class DayLearnScreen extends StatefulWidget {
 }
 
 class _DayLearnScreenState extends State<DayLearnScreen> with SingleTickerProviderStateMixin {
-  final FlutterTts flutterTts = FlutterTts();
   String? selectedDay;
   late AnimationController _animationController;
 
@@ -71,18 +70,10 @@ class _DayLearnScreenState extends State<DayLearnScreen> with SingleTickerProvid
   @override
   void initState() {
     super.initState();
-    _initializeTts();
     _animationController = AnimationController(
       vsync: this,
       duration: const Duration(milliseconds: 300),
     );
-  }
-
-  Future<void> _initializeTts() async {
-    await flutterTts.setLanguage("en-US");
-    await flutterTts.setSpeechRate(0.4);
-    await flutterTts.setVolume(1.0);
-    await flutterTts.setPitch(1.2);
   }
 
   Future<void> _speak(String dayName) async {
@@ -92,12 +83,27 @@ class _DayLearnScreenState extends State<DayLearnScreen> with SingleTickerProvid
     _animationController.forward().then((_) {
       _animationController.reverse();
     });
-    await flutterTts.speak(dayName);
+
+    // الإعدادات المطلوبة: السرعة 165، الـ Pitch 70، والصوت الأنثوي f4
+    final List<String> args = ['-s', '170', '-p', '70', '-v', 'en-us+f4', dayName];
+
+    try {
+      if (Platform.isWindows) {
+        await Process.run('espeak', args);
+      } else if (Platform.isLinux) {
+        // تشغيل espeak-ng الأساسي على لينكس / راسبيري باي
+        ProcessResult result = await Process.run('espeak-ng', args);
+        if (result.exitCode != 0) {
+          await Process.run('espeak', args);
+        }
+      }
+    } catch (e) {
+      debugPrint("eSpeak Error: $e");
+    }
   }
 
   @override
   void dispose() {
-    flutterTts.stop();
     _animationController.dispose();
     super.dispose();
   }
@@ -294,7 +300,6 @@ class _DayLearnScreenState extends State<DayLearnScreen> with SingleTickerProvid
               ),
               child: Row(
                 children: [
-                  // Day Number Circle
                   Container(
                     width: 60,
                     height: 60,
@@ -318,7 +323,6 @@ class _DayLearnScreenState extends State<DayLearnScreen> with SingleTickerProvid
                     ),
                   ),
                   const SizedBox(width: 20),
-                  // Day Name
                   Expanded(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -343,7 +347,6 @@ class _DayLearnScreenState extends State<DayLearnScreen> with SingleTickerProvid
                       ],
                     ),
                   ),
-                  // Emoji and Icon
                   Column(
                     children: [
                       Text(

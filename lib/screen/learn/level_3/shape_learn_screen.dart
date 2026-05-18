@@ -1,5 +1,5 @@
+import 'dart:io';
 import 'package:flutter/material.dart';
-import 'package:flutter_tts/flutter_tts.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:get/get.dart';
 import 'dart:math' as math;
@@ -13,7 +13,6 @@ class ShapeLearnScreen extends StatefulWidget {
 
 class _ShapeLearnScreenState extends State<ShapeLearnScreen>
     with SingleTickerProviderStateMixin {
-  final FlutterTts flutterTts = FlutterTts();
   String? selectedShape;
   late AnimationController _animationController;
 
@@ -76,18 +75,10 @@ class _ShapeLearnScreenState extends State<ShapeLearnScreen>
   @override
   void initState() {
     super.initState();
-    _initializeTts();
     _animationController = AnimationController(
       vsync: this,
       duration: const Duration(milliseconds: 300),
     );
-  }
-
-  Future<void> _initializeTts() async {
-    await flutterTts.setLanguage("en-US");
-    await flutterTts.setSpeechRate(0.4);
-    await flutterTts.setVolume(1.0);
-    await flutterTts.setPitch(1.2);
   }
 
   Future<void> _speak(String shapeName) async {
@@ -97,12 +88,27 @@ class _ShapeLearnScreenState extends State<ShapeLearnScreen>
     _animationController.forward().then((_) {
       _animationController.reverse();
     });
-    await flutterTts.speak(shapeName);
+
+    // إعدادات الصوت الأنثوي السريع المطلوبة (نفس إعدادات الشاشة الأولى)
+    final List<String> args = ['-s', '160', '-p', '70', '-v', 'en-us+f4', shapeName];
+
+    try {
+      if (Platform.isWindows) {
+        await Process.run('espeak', args);
+      } else if (Platform.isLinux) {
+        // محاولة espeak-ng الأساسية في لينكس/راسبيري
+        ProcessResult result = await Process.run('espeak-ng', args);
+        if (result.exitCode != 0) {
+          await Process.run('espeak', args);
+        }
+      }
+    } catch (e) {
+      debugPrint("eSpeak Error: $e");
+    }
   }
 
   @override
   void dispose() {
-    flutterTts.stop();
     _animationController.dispose();
     super.dispose();
   }
@@ -266,11 +272,11 @@ class _ShapeLearnScreenState extends State<ShapeLearnScreen>
   }
 
   Widget _buildShapeCard(
-    String shapeName,
-    Color color,
-    ShapeType type,
-    bool isSelected,
-  ) {
+      String shapeName,
+      Color color,
+      ShapeType type,
+      bool isSelected,
+      ) {
     return GestureDetector(
       onTap: () => _speak(shapeName),
       child: AnimatedScale(
@@ -373,7 +379,6 @@ class _ShapeLearnScreenState extends State<ShapeLearnScreen>
   }
 }
 
-// Enum for shape types
 enum ShapeType {
   circle,
   square,
@@ -389,7 +394,6 @@ enum ShapeType {
   octagon,
 }
 
-// Custom painter for shapes
 class ShapePainter extends CustomPainter {
   final ShapeType type;
   final Color color;
@@ -520,11 +524,11 @@ class ShapePainter extends CustomPainter {
   }
 
   Path _createStarPath(
-    Offset center,
-    double outerRadius,
-    double innerRadius,
-    int points,
-  ) {
+      Offset center,
+      double outerRadius,
+      double innerRadius,
+      int points,
+      ) {
     final path = Path();
     final angle = math.pi / points;
 
@@ -551,7 +555,6 @@ class ShapePainter extends CustomPainter {
 
     path.moveTo(centerX, top + height / 4);
 
-    // Left curve
     path.cubicTo(
       centerX - width / 2,
       top,
@@ -561,7 +564,6 @@ class ShapePainter extends CustomPainter {
       top + height * 0.75,
     );
 
-    // Right curve
     path.cubicTo(
       centerX + width / 2,
       top + height / 3,

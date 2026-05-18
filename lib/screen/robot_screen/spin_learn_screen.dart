@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:http/http.dart' as http;
@@ -30,11 +31,8 @@ class _RobotScreenState extends State<RobotScreen> {
 
   String? filePath;
 
-  // السيرفر الخاص بالدروس
   final String baseUrl = "http://172.189.165.242:8081";
-  // السيرفر الخاص بحفظ النتيجة النهائية
-  final String completionUrl =
-      "https://clickexpress.delivery/api/segments/5/complete";
+  final String completionUrl = "https://clickexpress.delivery/api/segments/5/complete";
 
   @override
   void initState() {
@@ -109,7 +107,11 @@ class _RobotScreenState extends State<RobotScreen> {
       await player.onPlayerComplete.first;
 
       setState(() => isPlaying = false);
-      startRecording();
+
+      // تأخير ثانية لتهيئة الهاردوير على الراسبيري
+      Future.delayed(const Duration(seconds: 1), () {
+        startRecording();
+      });
     } catch (e) {
       print("Error loading question: $e");
     }
@@ -139,12 +141,9 @@ class _RobotScreenState extends State<RobotScreen> {
     if (path != null) await sendAudio(path);
   }
 
-  /// 📤 إرسال الصوت للسيرفر ثم إرسال النتيجة النهائية للرابط الجديد
+  /// 📤 إرسال الصوت للسيرفر
   Future<void> sendAudio(String path) async {
-    var request = http.MultipartRequest(
-      'POST',
-      Uri.parse("$baseUrl/transcribe-answer"),
-    );
+    var request = http.MultipartRequest('POST', Uri.parse("$baseUrl/transcribe-answer"));
     request.files.add(await http.MultipartFile.fromPath('audio', path));
 
     try {
@@ -154,16 +153,13 @@ class _RobotScreenState extends State<RobotScreen> {
       final bool isCorrect = data['is_correct'] ?? false;
       final String? audioUrl = data['audio_url'];
 
-      // ✅ استدعاء رابط الـ Complete الذي أرسلتيه
       await submitStoryResult(isCorrect);
 
       Get.snackbar(
         isCorrect ? "✔ صح" : "❌ غلط",
         isCorrect ? "إجابة ممتازة!" : "حاول مرة ثانية",
         snackPosition: SnackPosition.BOTTOM,
-        backgroundColor: isCorrect
-            ? Colors.green.withOpacity(0.8)
-            : Colors.red.withOpacity(0.8),
+        backgroundColor: isCorrect ? Colors.green.withOpacity(0.8) : Colors.red.withOpacity(0.8),
         colorText: Colors.white,
       );
 
@@ -173,7 +169,6 @@ class _RobotScreenState extends State<RobotScreen> {
     }
   }
 
-  /// 📬 إرسال JSON النتيجة النهائية للرابط: https://clickexpress.delivery/api/segments/5/complete
   Future<void> submitStoryResult(bool isCorrect) async {
     try {
       await http.post(
@@ -187,9 +182,8 @@ class _RobotScreenState extends State<RobotScreen> {
           "is_answer_correct": isCorrect,
         }),
       );
-      print("✅ تم إرسال نتيجة القصة بنجاح للرابط النهائي");
     } catch (e) {
-      print("❌ خطأ في إرسال النتيجة النهائية: $e");
+      print("❌ خطأ: $e");
     }
   }
 
@@ -203,172 +197,182 @@ class _RobotScreenState extends State<RobotScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Colors.white, // تثبيت خلفية البيئة لعدم التأثر بالـ Dark Mode للراسبيري
       body: Stack(
         children: [
-          /// 🖼️ الخلفية
+          /// 🖼️ الخلفية الأصلية تماماً (تأخذ BoxFit.contain مثل اللابتوب)
           Positioned.fill(
-            child: Image.asset('assets/images/robot.jpg', fit: BoxFit.contain),
+            child: Image.asset(
+              'assets/images/robot.jpg',
+              fit: BoxFit.contain,
+            ),
           ),
 
           /// 🔙 زر الرجوع
           Positioned(
-            top: 40,
+            top: 20,
             left: 20,
-            child: Container(
-              decoration: BoxDecoration(
-                color: Colors.white.withOpacity(0.7),
-                shape: BoxShape.circle,
-              ),
-              child: IconButton(
-                icon: const Icon(Icons.arrow_back, color: Colors.black),
-                onPressed: () => Get.back(),
+            child: SafeArea(
+              child: Container(
+                decoration: BoxDecoration(
+                  color: Colors.white.withOpacity(0.85),
+                  shape: BoxShape.circle,
+                ),
+                child: IconButton(
+                  icon: const Icon(Icons.arrow_back, color: Colors.black),
+                  onPressed: () => Get.back(),
+                ),
               ),
             ),
           ),
 
-          /// 🎮 أزرار التحكم
+          /// 🎮 أزرار التحكم فوق خالص على اليمين مع مسافة أمان (top: 20)
           Positioned(
-            top: 120,
+            top: 20,
             right: 20,
-            child: Column(
-              children: [
-                FloatingActionButton(
-                  heroTag: "btnPlay",
-                  backgroundColor: Colors.white,
-                  onPressed: startLesson,
-                  child: Icon(
-                    isPlaying ? Icons.pause : Icons.play_arrow,
-                    size: 40,
-                    color: Colors.black87,
-                  ),
-                ),
-                const SizedBox(height: 20),
-                GestureDetector(
-                  onLongPressStart: (_) => startRecording(),
-                  onLongPressEnd: (_) => stopRecording(),
-                  child: FloatingActionButton(
-                    heroTag: "btnMic",
-                    backgroundColor: isRecording
-                        ? Colors.red
-                        : Colors.blueAccent,
-                    onPressed: () {
-                      if (isRecording) stopRecording();
-                    },
+            child: SafeArea(
+              child: Column(
+                children: [
+                  FloatingActionButton(
+                    heroTag: "btnPlay",
+                    backgroundColor: Colors.white,
+                    onPressed: startLesson,
                     child: Icon(
-                      isRecording ? Icons.stop : Icons.mic,
-                      size: 30,
-                      color: Colors.white,
+                      isPlaying ? Icons.pause : Icons.play_arrow,
+                      size: 38,
+                      color: Colors.black87,
                     ),
                   ),
-                ),
-                if (isRecording)
-                  const Padding(
-                    padding: EdgeInsets.only(top: 8.0),
-                    child: Text(
-                      "اسمعك...",
-                      style: TextStyle(
-                        color: Colors.red,
-                        fontWeight: FontWeight.bold,
+                  const SizedBox(height: 12),
+                  GestureDetector(
+                    onLongPressStart: (_) => startRecording(),
+                    onLongPressEnd: (_) => stopRecording(),
+                    child: FloatingActionButton(
+                      heroTag: "btnMic",
+                      backgroundColor: isRecording ? Colors.red : Colors.blueAccent,
+                      onPressed: () {
+                        if (isRecording) stopRecording();
+                      },
+                      child: Icon(
+                        isRecording ? Icons.stop : Icons.mic,
+                        size: 28,
+                        color: Colors.white,
                       ),
                     ),
                   ),
-              ],
-            ),
-          ),
-
-          /// 📦 صندوق النصوص السفلي
-          if (showQuestion || showMoral || storyTitle.isNotEmpty)
-            Positioned(
-              bottom: 40,
-              left: 20,
-              right: 20,
-              child: Container(
-                padding: const EdgeInsets.all(20),
-                decoration: BoxDecoration(
-                  color: Colors.white.withOpacity(0.9),
-                  borderRadius: BorderRadius.circular(20),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black.withOpacity(0.1),
-                      blurRadius: 10,
-                      spreadRadius: 2,
-                    ),
-                  ],
-                ),
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    /// 1. حالة القصة
-                    if (storyTitle.isNotEmpty && !showMoral && !showQuestion)
-                      Text(
-                        "📖 قصة: $storyTitle",
-                        textAlign: TextAlign.center,
-                        style: const TextStyle(
-                          fontSize: 22,
+                  if (isRecording)
+                    const Padding(
+                      padding: EdgeInsets.only(top: 4.0),
+                      child: Text(
+                        "اسمعك...",
+                        style: TextStyle(
+                          color: Colors.red,
                           fontWeight: FontWeight.bold,
-                          color: Colors.blueAccent,
+                          fontSize: 13,
                         ),
                       ),
+                    ),
+                ],
+              ),
+            ),
+          ),
 
-                    /// 2. حالة المغزى
-                    if (showMoral)
-                      Column(
-                        children: [
-                          Text(
-                            "المغزى من قصة ($storyTitle) 💡",
-                            textAlign: TextAlign.center,
-                            style: const TextStyle(
-                              fontSize: 20,
-                              fontWeight: FontWeight.bold,
-                              color: Colors.blueGrey,
-                            ),
-                          ),
-                          const SizedBox(height: 10),
-                          Text(
-                            moral,
-                            textAlign: TextAlign.center,
-                            style: const TextStyle(
-                              fontSize: 18,
-                              fontWeight: FontWeight.w500,
-                            ),
-                          ),
-                        ],
+          /// 📦 صندوق النصوص السفلي المؤمن بالألوان الصريحة (بدون سكرول)
+          if (showQuestion || showMoral || storyTitle.isNotEmpty)
+            Positioned(
+              bottom: 40, // تم رفعه قليلاً لضمان عدم خروجه لأسفل الشاشة في الراسبيري
+              left: 20,
+              right: 20,
+              child: SafeArea(
+                child: Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+                  decoration: BoxDecoration(
+                    color: Colors.white, // خلفية بيضاء صلبة لعزل ثيم الراسبيري الداكن تلقائياً
+                    borderRadius: BorderRadius.circular(16),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withOpacity(0.15),
+                        blurRadius: 10,
+                        spreadRadius: 1,
                       ),
-
-                    /// 3. حالة السؤال (تقريب المسافات)
-                    if (showQuestion)
-                      Column(
-                        children: [
-                          Text(
-                            question,
-                            textAlign: TextAlign.center,
-                            style: const TextStyle(
-                              fontSize: 20,
-                              fontWeight: FontWeight.bold,
-                              color: Colors.black87,
-                            ),
+                    ],
+                  ),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min, // ليتقلص الصندوق ويأخذ حجم المحتوى بدقة
+                    children: [
+                      /// 1. حالة القصة
+                      if (storyTitle.isNotEmpty && !showMoral && !showQuestion)
+                        Text(
+                          "📖 قصة: $storyTitle",
+                          textAlign: TextAlign.center,
+                          style: const TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.blueAccent,
                           ),
-                          const SizedBox(height: 10),
-                          Row(
-                            mainAxisAlignment:
-                                MainAxisAlignment.center, // تجميع في المنتصف
-                            children: [
-                              _buildOptionChip(option2),
-                              const SizedBox(width: 10), // مسافة صغيرة قبل أو
-                              const Text(
-                                "أو",
-                                style: TextStyle(
-                                  fontWeight: FontWeight.bold,
-                                  fontSize: 16,
-                                ),
+                        ),
+
+                      /// 2. حالة المغزى
+                      if (showMoral)
+                        Column(
+                          children: [
+                            Text(
+                              "المغزى من قصة ($storyTitle) 💡",
+                              textAlign: TextAlign.center,
+                              style: const TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.bold,
+                                color: Colors.blueGrey,
                               ),
-                              const SizedBox(width: 10), // مسافة صغيرة بعد أو
-                              _buildOptionChip(option1),
-                            ],
-                          ),
-                        ],
-                      ),
-                  ],
+                            ),
+                            const SizedBox(height: 6),
+                            Text(
+                              moral,
+                              textAlign: TextAlign.center,
+                              style: const TextStyle(
+                                fontSize: 14,
+                                fontWeight: FontWeight.w500,
+                                color: Colors.black87, // لون أسود صريح ومضمون للظهور
+                              ),
+                            ),
+                          ],
+                        ),
+
+                      /// 3. حالة السؤال
+                      if (showQuestion)
+                        Column(
+                          children: [
+                            Text(
+                              question,
+                              textAlign: TextAlign.center,
+                              style: const TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.bold,
+                                color: Colors.black87, // لون أسود صريح ومضمون للظهور
+                              ),
+                            ),
+                            const SizedBox(height: 10),
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                _buildOptionChip(option2),
+                                const SizedBox(width: 10),
+                                const Text(
+                                  "أو",
+                                  style: TextStyle(
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 14,
+                                    color: Colors.black87, // لون أسود صريح ومضمون للظهور
+                                  ),
+                                ),
+                                const SizedBox(width: 10),
+                                _buildOptionChip(option1),
+                              ],
+                            ),
+                          ],
+                        ),
+                    ],
+                  ),
                 ),
               ),
             ),
@@ -379,17 +383,18 @@ class _RobotScreenState extends State<RobotScreen> {
 
   Widget _buildOptionChip(String label) {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
       decoration: BoxDecoration(
         color: Colors.blue.shade50,
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: BorderRadius.circular(10),
         border: Border.all(color: Colors.blueAccent.withOpacity(0.3)),
       ),
       child: Text(
         label,
         style: const TextStyle(
-          color: Colors.blueAccent,
+          color: Colors.blueAccent, // لون أزرق ثابت وواضح
           fontWeight: FontWeight.w600,
+          fontSize: 13,
         ),
       ),
     );

@@ -1,5 +1,5 @@
+import 'dart:io';
 import 'package:flutter/material.dart';
-import 'package:flutter_tts/flutter_tts.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:get/get.dart';
 
@@ -12,7 +12,6 @@ class NumberLearnScreen extends StatefulWidget {
 
 class _NumberLearnScreenState extends State<NumberLearnScreen>
     with SingleTickerProviderStateMixin {
-  final FlutterTts flutterTts = FlutterTts();
   int? selectedNumber;
   late AnimationController _animationController;
 
@@ -22,7 +21,6 @@ class _NumberLearnScreenState extends State<NumberLearnScreen>
   @override
   void initState() {
     super.initState();
-    _initializeTts();
     _animationController = AnimationController(
       vsync: this,
       duration: const Duration(milliseconds: 300),
@@ -57,13 +55,6 @@ class _NumberLearnScreenState extends State<NumberLearnScreen>
     return colors[(number - 1) % colors.length];
   }
 
-  Future<void> _initializeTts() async {
-    await flutterTts.setLanguage("en-US");
-    await flutterTts.setSpeechRate(0.4);
-    await flutterTts.setVolume(1.0);
-    await flutterTts.setPitch(1.2);
-  }
-
   Future<void> _speak(int number) async {
     setState(() {
       selectedNumber = number;
@@ -71,12 +62,28 @@ class _NumberLearnScreenState extends State<NumberLearnScreen>
     _animationController.forward().then((_) {
       _animationController.reverse();
     });
-    await flutterTts.speak(number.toString());
+
+    final String numberString = number.toString();
+    // الإعدادات المحددة: السرعة 165، الـ Pitch 70، والصوت الأنثوي f4
+    final List<String> args = ['-s', '165', '-p', '70', '-v', 'en-us+f4', numberString];
+
+    try {
+      if (Platform.isWindows) {
+        await Process.run('espeak', args);
+      } else if (Platform.isLinux) {
+        // دعم تشغيل espeak-ng الأساسي على لينكس / راسبيري باي
+        ProcessResult result = await Process.run('espeak-ng', args);
+        if (result.exitCode != 0) {
+          await Process.run('espeak', args);
+        }
+      }
+    } catch (e) {
+      debugPrint("eSpeak Error: $e");
+    }
   }
 
   @override
   void dispose() {
-    flutterTts.stop();
     _animationController.dispose();
     super.dispose();
   }
@@ -270,7 +277,6 @@ class _NumberLearnScreenState extends State<NumberLearnScreen>
           ),
           child: Stack(
             children: [
-              // Background pattern
               Positioned.fill(
                 child: ClipRRect(
                   borderRadius: BorderRadius.circular(16),
@@ -281,7 +287,6 @@ class _NumberLearnScreenState extends State<NumberLearnScreen>
                   ),
                 ),
               ),
-              // Number
               Center(
                 child: FittedBox(
                   fit: BoxFit.scaleDown,
@@ -305,7 +310,6 @@ class _NumberLearnScreenState extends State<NumberLearnScreen>
                   ),
                 ),
               ),
-              // Play icon indicator
               if (isSelected)
                 Positioned(
                   top: 4,
@@ -334,7 +338,6 @@ class _NumberLearnScreenState extends State<NumberLearnScreen>
   }
 }
 
-// Custom painter for card pattern
 class NumberCardPatternPainter extends CustomPainter {
   final Color color;
 
@@ -347,7 +350,6 @@ class NumberCardPatternPainter extends CustomPainter {
       ..style = PaintingStyle.stroke
       ..strokeWidth = 1.5;
 
-    // Draw diagonal lines
     for (double i = -size.height; i < size.width; i += 15) {
       canvas.drawLine(
         Offset(i, 0),
