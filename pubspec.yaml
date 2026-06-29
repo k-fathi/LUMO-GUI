@@ -1,0 +1,90 @@
+name: kids_world_app
+description: "A new Flutter project."
+publish_to: 'none'
+
+version: 1.0.0+1
+
+environment:
+  sdk: ^3.8.1
+
+dependencies:
+  flutter:
+    sdk: flutter
+
+  cupertino_icons: ^1.0.8
+  google_fonts: ^6.3.2
+  get: ^4.7.2
+
+  # ✅ updated
+  shared_preferences: ^2.2.2
+  intl: ^0.20.2
+
+  change_app_package_name: ^1.5.0
+  url_launcher: ^6.1.14
+  get_it: ^7.6.0
+  get_storage: ^2.1.1
+  icons_launcher: ^3.0.0
+  archive: ^3.6.1
+  dio: ^5.7.0
+  win32: ^5.10.0
+  in_app_purchase: ^3.2.1
+  flutter_secure_storage: ^9.2.4
+  encrypt: ^5.0.3
+  http_certificate_pinning: ^3.0.1
+  permission_handler: ^12.0.1
+  flutter_tts: ^4.2.0
+  record: ^6.1.1
+  path_provider: ^2.1.3
+
+  # ✅ أخذنا الأحدث
+  audioplayers: ^6.1.0
+  http: ^1.6.0
+
+  # ✅ من app الأصوات
+  provider: ^6.1.1
+  easy_localization: ^3.0.7
+  google_mobile_ads: ^6.0.0
+  app_settings: ^6.1.1
+  package_info_plus: ^9.0.0
+
+icons_launcher:
+  image_path: "assets/images/app_logo.png"
+  platforms:
+    android:
+      enable: true
+    ios:
+      enable: true
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^6.0.0
+
+flutter:
+  uses-material-design: true
+
+  fonts:
+    - family: MaterialIcons
+      fonts:
+        - asset: assets/fonts/MaterialIcons-Regular.otf
+    
+    - family: Poppins
+      fonts:
+        - asset: assets/fonts/Poppins-Regular.ttf
+        - asset: assets/fonts/Poppins-Medium.ttf
+          weight: 500
+        - asset: assets/fonts/Poppins-SemiBold.ttf
+          weight: 600
+        - asset: assets/fonts/Poppins-Bold.ttf
+          weight: 700
+
+  assets:
+    # 👇 الأساسي
+    - assets/images/
+    - assets/sounds/
+
+    # 👇 من app الأصوات
+    - assets/animal_images/
+    - assets/animal_sounds/
+    - assets/translations/
+    - assets/

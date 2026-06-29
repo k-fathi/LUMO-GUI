@@ -1,0 +1,378 @@
+import 'dart:io';
+import 'package:flutter/material.dart';
+import 'package:get/get.dart';
+
+class ColorLearnScreen extends StatefulWidget {
+  const ColorLearnScreen({super.key});
+
+  @override
+  State<ColorLearnScreen> createState() => _ColorLearnScreenState();
+}
+
+class _ColorLearnScreenState extends State<ColorLearnScreen>
+    with SingleTickerProviderStateMixin {
+  String? selectedColor;
+  late AnimationController _animationController;
+
+  final List<Map<String, dynamic>> colors = [
+    {'name': 'Red', 'color': const Color(0xFFFF3B30)},
+    {'name': 'Blue', 'color': const Color(0xFF007AFF)},
+    {'name': 'Green', 'color': const Color(0xFF34C759)},
+    {'name': 'Yellow', 'color': const Color(0xFFFFCC00)},
+    {'name': 'Orange', 'color': const Color(0xFFFF9500)},
+    {'name': 'Purple', 'color': const Color(0xFFAF52DE)},
+    {'name': 'Pink', 'color': const Color(0xFFFF2D55)},
+    {'name': 'Brown', 'color': const Color(0xFF8B4513)},
+    {'name': 'Black', 'color': const Color(0xFF000000)},
+    {'name': 'White', 'color': const Color(0xFFFFFFFF)},
+    {'name': 'Gray', 'color': const Color(0xFF8E8E93)},
+    {'name': 'Cyan', 'color': const Color(0xFF5AC8FA)},
+    {'name': 'Magenta', 'color': const Color(0xFFFF2D92)},
+    {'name': 'Lime', 'color': const Color(0xFFCDDC39)},
+    {'name': 'Indigo', 'color': const Color(0xFF5856D6)},
+    {'name': 'Teal', 'color': const Color(0xFF30D5C8)},
+    {'name': 'Maroon', 'color': const Color(0xFF800000)},
+    {'name': 'Gold', 'color': const Color(0xFFFFD700)},
+    {'name': 'Silver', 'color': const Color(0xFFC0C0C0)},
+    {'name': 'Coral', 'color': const Color(0xFFFF7F50)},
+  ];
+
+  @override
+  void initState() {
+    super.initState();
+    _animationController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 300),
+    );
+  }
+
+  Future<void> _speak(String colorName) async {
+    setState(() {
+      selectedColor = colorName;
+    });
+    _animationController.forward().then((_) {
+      _animationController.reverse();
+    });
+
+    final List<String> args = ['-s', '165', '-p', '70', '-v', 'en-us+f4', colorName];
+
+    try {
+      if (Platform.isWindows) {
+        await Process.run('espeak', args);
+      } else if (Platform.isLinux) {
+        ProcessResult result = await Process.run('espeak-ng', args);
+        if (result.exitCode != 0) {
+          await Process.run('espeak', args);
+        }
+      }
+    } catch (e) {
+      debugPrint("eSpeak Error: $e");
+    }
+  }
+
+  @override
+  void dispose() {
+    _animationController.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      body: Container(
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
+            colors: [
+              const Color(0xFFFFA07A).withValues(alpha: 0.1),
+              Colors.white,
+            ],
+          ),
+        ),
+        child: SafeArea(
+          child: SingleChildScrollView( // ✅ التغيير الأول
+            child: Column(
+              children: [
+                _buildHeader(),
+                _buildInstructions(),
+                _buildColorGrid(), // ✅ شيلنا Expanded
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildHeader() {
+    return Container(
+      padding: const EdgeInsets.all(16),
+      child: Row(
+        children: [
+          GestureDetector(
+            onTap: () => Get.back(),
+            child: Container(
+              padding: const EdgeInsets.all(8),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(12),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withValues(alpha: 0.1),
+                    blurRadius: 8,
+                    offset: const Offset(0, 2),
+                  ),
+                ],
+              ),
+              child: Icon(Icons.arrow_back, color: Color(0xFFFFA07A)),
+            ),
+          ),
+          SizedBox(width: 12),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'Learn Colors',
+                  style: TextStyle(fontFamily: 'Poppins',
+                    fontSize: 22,
+                    fontWeight: FontWeight.w700,
+                    color: const Color(0xFF2D3436),
+                  ),
+                ),
+                Text(
+                  'Tap any color to hear its name!',
+                  style: TextStyle(fontFamily: 'Poppins',
+                    fontSize: 13,
+                    color: const Color(0xFF636E72),
+                  ),
+                ),
+              ],
+            ),
+          ),
+          Container(
+            padding: const EdgeInsets.all(12),
+            decoration: BoxDecoration(
+              color: const Color(0xFFFFA07A),
+              borderRadius: BorderRadius.circular(12),
+              boxShadow: [
+                BoxShadow(
+                  color: const Color(0xFFFFA07A).withValues(alpha: 0.3),
+                  blurRadius: 8,
+                  offset: const Offset(0, 2),
+                ),
+              ],
+            ),
+            child: Icon(Icons.volume_up, color: Colors.white, size: 24),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildInstructions() {
+    return Container(
+      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        gradient: const LinearGradient(
+          colors: [Color(0xFFFFA07A), Color(0xFFFF6B6B)],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+        ),
+        borderRadius: BorderRadius.circular(16),
+        boxShadow: [
+          BoxShadow(
+            color: const Color(0xFFFFA07A).withValues(alpha: 0.3),
+            blurRadius: 12,
+            offset: const Offset(0, 4),
+          ),
+        ],
+      ),
+      child: Row(
+        children: [
+          Container(
+            padding: const EdgeInsets.all(12),
+            decoration: BoxDecoration(
+              color: Colors.white.withValues(alpha: 0.2),
+              borderRadius: BorderRadius.circular(12),
+            ),
+            child: Icon(Icons.palette, color: Colors.white, size: 28),
+          ),
+          SizedBox(width: 12),
+          Expanded(
+            child: Text(
+              'Touch any color to learn its name!',
+              style: TextStyle(fontFamily: 'Poppins',
+                fontSize: 14,
+                fontWeight: FontWeight.w500,
+                color: Colors.white,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildColorGrid() {
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: GridView.builder(
+          shrinkWrap: true,
+          physics: const NeverScrollableScrollPhysics(), // ✅ التغيير الثاني
+          gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+            crossAxisCount: 5,
+            crossAxisSpacing: 16,
+            mainAxisSpacing: 16,
+            childAspectRatio: 1,
+          ),
+          itemCount: colors.length,
+          itemBuilder: (context, index) {
+            final item = colors[index];
+            final colorName = item['name'] as String;
+            final color = item['color'] as Color;
+            final isSelected = selectedColor == colorName;
+
+            return _buildColorCard(colorName, color, isSelected);
+          },
+        ),
+      ),
+    );
+  }
+
+  Widget _buildColorCard(String colorName, Color color, bool isSelected) {
+    final brightness = color.computeLuminance();
+    final textColor = brightness > 0.5 ? Colors.black : Colors.white;
+    final borderColor = brightness > 0.8 ? Colors.grey.shade300 : color;
+
+    return GestureDetector(
+      onTap: () => _speak(colorName),
+      child: AnimatedScale(
+        scale: isSelected ? 1.1 : 1.0,
+        duration: const Duration(milliseconds: 200),
+        child: Container(
+          decoration: BoxDecoration(
+            color: color,
+            borderRadius: BorderRadius.circular(20),
+            border: Border.all(color: borderColor, width: 3),
+            boxShadow: [
+              BoxShadow(
+                color: color.withValues(alpha: 0.5),
+                blurRadius: isSelected ? 20 : 12,
+                offset: const Offset(0, 6),
+                spreadRadius: isSelected ? 3 : 0,
+              ),
+            ],
+          ),
+          child: Stack(
+            children: [
+              Positioned(
+                top: -20,
+                right: -20,
+                child: Container(
+                  width: 80,
+                  height: 80,
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    color: Colors.white.withValues(alpha: 0.1),
+                  ),
+                ),
+              ),
+              Positioned(
+                bottom: -30,
+                left: -30,
+                child: Container(
+                  width: 100,
+                  height: 100,
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    color: Colors.white.withValues(alpha: 0.05),
+                  ),
+                ),
+              ),
+              Positioned.fill(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Expanded(
+                      child: Container(
+                        margin: const EdgeInsets.all(8),
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          color: brightness > 0.5
+                              ? Colors.black.withValues(alpha: 0.1)
+                              : Colors.white.withValues(alpha: 0.2),
+                        ),
+                        child: Center(
+                          child: FittedBox(
+                            fit: BoxFit.scaleDown,
+                            child: Padding(
+                              padding: const EdgeInsets.all(8.0),
+                              child: Icon(
+                                Icons.palette,
+                                size: 30,
+                                color: textColor.withValues(alpha: 0.8),
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                    SizedBox(height: 4),
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 4.0),
+                      child: FittedBox(
+                        fit: BoxFit.scaleDown,
+                        child: Text(
+                          colorName,
+                          style: TextStyle(fontFamily: 'Poppins',
+                            fontSize: 16,
+                            fontWeight: FontWeight.w700,
+                            color: textColor,
+                            shadows: [
+                              Shadow(
+                                color: brightness > 0.5
+                                    ? Colors.white.withValues(alpha: 0.8)
+                                    : Colors.black.withValues(alpha: 0.3),
+                                blurRadius: 4,
+                                offset: const Offset(0, 1),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ),
+                    SizedBox(height: 8),
+                  ],
+                ),
+              ),
+              if (isSelected)
+                Positioned(
+                  top: 8,
+                  right: 8,
+                  child: Container(
+                    padding: const EdgeInsets.all(6),
+                    decoration: BoxDecoration(
+                      color: textColor.withValues(alpha: 0.9),
+                      shape: BoxShape.circle,
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withValues(alpha: 0.3),
+                          blurRadius: 6,
+                          offset: const Offset(0, 2),
+                        ),
+                      ],
+                    ),
+                    child: Icon(Icons.volume_up, size: 16, color: color),
+                  ),
+                ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
