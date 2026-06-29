@@ -152,7 +152,8 @@ class _PatientsScreenState extends State<PatientsScreen> {
                           const SizedBox(height: 4),
                           Text(
                             'Child: ${patient.childName}',
-                            style: TextStyle(fontFamily: 'Poppins', 
+                            style: TextStyle(fontFamily: 'Poppins',
+
                               fontSize: 12,
                               color: Colors.grey.shade700,
                             ),

@@ -22,22 +22,24 @@ class _HomePageState extends State<HomePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.blue[50],
-      // إلغاء الـ AppBar التقليدي لتوفير مساحة رأسية للراسبيري باي
       body: SafeArea(
-        child: Column(
-          children: [
-            _buildCustomAppBar(),
-            const BannerAdWidget(),
-            _buildCategoryList(),
-            const SizedBox(height: 6),
-            Expanded(child: _buildAnimalGrid()),
-          ],
+        child: SingleChildScrollView( // 🟢 جعل الشاشة بالكامل تسكرول عمودياً بطول الشاشة
+          physics: const BouncingScrollPhysics(),
+          child: Column(
+            children: [
+              _buildCustomAppBar(),
+              const BannerAdWidget(),
+              _buildCategoryList(),
+              const SizedBox(height: 6),
+              _buildAnimalGrid(), // تم إزالة الـ Expanded لتعمل بشكل صحيح داخل الـ SingleChildScrollView
+            ],
+          ),
         ),
       ),
     );
   }
 
-  // إنشاء بار علوي مخصص مرن وموفر للمساحة
+  // بار علوي مخصص مرن وموفر للمساحة
   Widget _buildCustomAppBar() {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
@@ -69,48 +71,55 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
+  // قائمة التصنيفات الأفقية مع ميزة إخفاء شريط التمرير (Scrollbar)
   Widget _buildCategoryList() {
     return Consumer<CategoryProvider>(
       builder: (context, categoryProvider, child) {
         return Container(
-          height:
-              52, // تقليل الارتفاع من 100 إلى 52 ليصبح نحيفاً ومناسباً للراسبيري
+          height: 52, // الارتفاع النحيف المناسب للراسبيري باي والشاشات العريضة
           margin: const EdgeInsets.only(top: 6, bottom: 2),
-          child: ListView.builder(
-            scrollDirection: Axis.horizontal,
-            padding: const EdgeInsets.symmetric(horizontal: 8),
-            itemCount: categoryProvider.categories.length + 1,
-            itemBuilder: (context, index) {
-              if (index == 0) {
+          child: ScrollConfiguration(
+            behavior: ScrollConfiguration.of(context).copyWith(
+              scrollbars: false, // 👈 إخفاء شريط التمرير الأفقي تماماً
+            ),
+            child: ListView.builder(
+              scrollDirection: Axis.horizontal,
+              physics: const BouncingScrollPhysics(), // 👈 حركة سحب مرنة تختفي فور التوقف
+              padding: const EdgeInsets.symmetric(horizontal: 8),
+              itemCount: categoryProvider.categories.length + 1,
+              itemBuilder: (context, index) {
+                if (index == 0) {
+                  return GestureDetector(
+                    onTap: () => categoryProvider.selectCategory(null),
+                    child: _buildCategoryCard(
+                      icon: Icons.apps,
+                      title: 'all'.tr(),
+                      isSelected: categoryProvider.selectedCategoryId == null,
+                    ),
+                  );
+                }
+
+                Category category = categoryProvider.categories[index - 1];
+                bool isSelected =
+                    category.id == categoryProvider.selectedCategoryId;
+
                 return GestureDetector(
-                  onTap: () => categoryProvider.selectCategory(null),
+                  onTap: () => categoryProvider.selectCategory(category.id),
                   child: _buildCategoryCard(
-                    icon: Icons.apps,
-                    title: 'all'.tr(),
-                    isSelected: categoryProvider.selectedCategoryId == null,
+                    icon: category.icon,
+                    title: category.name.tr(),
+                    isSelected: isSelected,
                   ),
                 );
-              }
-
-              Category category = categoryProvider.categories[index - 1];
-              bool isSelected =
-                  category.id == categoryProvider.selectedCategoryId;
-
-              return GestureDetector(
-                onTap: () => categoryProvider.selectCategory(category.id),
-                child: _buildCategoryCard(
-                  icon: category.icon,
-                  title: category.name.tr(),
-                  isSelected: isSelected,
-                ),
-              );
-            },
+              },
+            ),
           ),
         );
       },
     );
   }
 
+  // بطاقة التصنيف (محتفظة بشكلها الأصلي وتتحول للأزرق الصريح عند الضغط)
   Widget _buildCategoryCard({
     required IconData icon,
     required String title,
@@ -124,7 +133,6 @@ class _HomePageState extends State<HomePage> {
         borderRadius: BorderRadius.circular(12),
         border: Border.all(color: Colors.blue, width: 1.5),
       ),
-      // تحويل العناصر إلى Row أفقي بدلاً من Column لمنع سحق العناصر رأسياً
       child: Row(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
@@ -144,28 +152,30 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
+  // شبكة عرض الحيوانات المدمجة مع الاسكرول الرئيسي للشاشة
   Widget _buildAnimalGrid() {
     return Consumer2<CategoryProvider, FavoritesProvider>(
       builder: (context, categoryProvider, favoritesProvider, child) {
         List<Animal> filteredAnimals =
-            categoryProvider.selectedCategoryId == null
+        categoryProvider.selectedCategoryId == null
             ? AnimalRepository.animals
             : AnimalRepository.animals
-                  .where(
-                    (animal) => categoryProvider
-                        .getAnimalIdsByCategory(
-                          categoryProvider.selectedCategoryId!,
-                        )
-                        .contains(animal.index),
-                  )
-                  .toList();
+            .where(
+              (animal) => categoryProvider
+              .getAnimalIdsByCategory(
+            categoryProvider.selectedCategoryId!,
+          )
+              .contains(animal.index),
+        )
+            .toList();
 
         return GridView.builder(
-          padding: const EdgeInsets.all(8),
+          shrinkWrap: true, // 👈 تجعل الشبكة تأخذ حجم محتواها بدقة
+          physics: const NeverScrollableScrollPhysics(), // 👈 تعطيل اسكرول الشبكة الداخلي ليعمل اسكرول الشاشة الرئيسي
+          padding: const EdgeInsets.fromLTRB(8, 0, 8, 24), // مسافة أمان مريحة في الأسفل عند التمرير
           gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
             crossAxisCount: 4,
-            childAspectRatio:
-                1.15, // تعديل الـ Aspect Ratio ليتناسب مع الطول المتاح على الشاشة العريضة
+            childAspectRatio: 1.15,
             crossAxisSpacing: 10,
             mainAxisSpacing: 10,
           ),

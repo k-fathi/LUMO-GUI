@@ -161,8 +161,25 @@ class _RobotScreenState extends State<RobotScreen> {
       await submitStoryResult(isCorrect);
 
       Get.snackbar(
-        isCorrect ? "✔ صح" : "❌ غلط",
-        isCorrect ? "إجابة ممتازة!" : "حاول مرة ثانية",
+        '',
+        '',
+        titleText: Text(
+          isCorrect ? "✔ صح" : "❌ غلط",
+          style: const TextStyle(
+            fontFamily: 'Cairo',
+            color: Colors.white,
+            fontWeight: FontWeight.bold,
+            fontSize: 16,
+          ),
+        ),
+        messageText: Text(
+          isCorrect ? "إجابة ممتازة!" : "حاول مرة ثانية",
+          style: const TextStyle(
+            fontFamily: 'Cairo',
+            color: Colors.white,
+            fontSize: 14,
+          ),
+        ),
         snackPosition: SnackPosition.BOTTOM,
         backgroundColor: isCorrect
             ? Colors.green.withOpacity(0.8)
@@ -172,7 +189,29 @@ class _RobotScreenState extends State<RobotScreen> {
 
       if (audioUrl != null) await player.play(UrlSource(audioUrl));
     } catch (e) {
-      Get.snackbar("خطأ", "مشكلة في الاتصال بالموديل");
+      Get.snackbar(
+        '',
+        '',
+        titleText: const Text(
+          "خطأ",
+          style: TextStyle(
+            fontFamily: 'Cairo',
+            color: Colors.white,
+            fontWeight: FontWeight.bold,
+            fontSize: 16,
+          ),
+        ),
+        messageText: const Text(
+          "مشكلة في الاتصال بالموديل",
+          style: TextStyle(
+            fontFamily: 'Cairo',
+            color: Colors.white,
+            fontSize: 14,
+          ),
+        ),
+        snackPosition: SnackPosition.BOTTOM,
+        backgroundColor: Colors.red.withOpacity(0.8),
+      );
     }
   }
 
@@ -267,6 +306,7 @@ class _RobotScreenState extends State<RobotScreen> {
                       child: Text(
                         "اسمعك...",
                         style: TextStyle(
+                          fontFamily: 'Cairo',
                           color: Colors.red,
                           fontWeight: FontWeight.bold,
                           fontSize: 13,

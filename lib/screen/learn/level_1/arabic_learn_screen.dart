@@ -15,7 +15,7 @@ class _ArabicLearnScreenState extends State<ArabicLearnScreen>
   late AnimationController _animationController;
 
   final List<Map<String, dynamic>> arabicLetters = [
-    {'letter': 'ا', 'name': 'Alif', 'color': const Color(0xFF00B894)},
+    {'letter': 'أ', 'name': 'Alif', 'color': const Color(0xFF00B894)},
     {'letter': 'ب', 'name': 'pa', 'color': const Color(0xFF6C5CE7)},
     {'letter': 'ت', 'name': 'Ta', 'color': const Color(0xFFFF6B9D)},
     {'letter': 'ث', 'name': 'Tha', 'color': const Color(0xFF4ECDC4)},
@@ -144,7 +144,7 @@ class _ArabicLearnScreenState extends State<ArabicLearnScreen>
               children: [
                 Text(
                   'تعلم الحروف العربية',
-                  style: TextStyle(fontFamily: 'Poppins',
+                  style: TextStyle(fontFamily: 'Cairo',
                     fontSize: 22,
                     fontWeight: FontWeight.w700,
                     color: const Color(0xFF2D3436),
@@ -188,7 +188,7 @@ class _ArabicLearnScreenState extends State<ArabicLearnScreen>
         children: [
           Text(
             'أ',
-            style: TextStyle(fontFamily: 'Poppins',
+            style: TextStyle(fontFamily: 'Cairo',
               fontSize: 32,
               fontWeight: FontWeight.bold,
               color: Colors.white,
@@ -252,7 +252,7 @@ class _ArabicLearnScreenState extends State<ArabicLearnScreen>
                 padding: const EdgeInsets.all(8.0),
                 child: Text(
                   letter,
-                  style: TextStyle(fontFamily: 'Poppins',
+                  style: TextStyle(fontFamily: 'Cairo',
                     fontSize: 48,
                     color: Colors.white,
                   ),
